@@ -5,11 +5,17 @@ use App\Models\Entry;
 $isNew = empty($entry['id']);
 $action = $isNew ? '/admin/contenidos' : '/admin/contenidos/' . (int) $entry['id'];
 $dt = fn (?string $v) => $v ? date('Y-m-d\TH:i', strtotime($v)) : '';
+$media = (string) ($entry['media_url'] ?? '');
+$mediaIsFile = str_starts_with($media, '/uploads/');
+$source = old('media_source', $mediaIsFile ? 'file' : 'link');
+$ext = strtolower(pathinfo(parse_url($media, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
+$limit = \App\Services\Uploader::serverLimit();
 ?>
 <p><a href="/admin/contenidos">← Volver a contenidos</a></p>
 <div class="cols cols--wide">
-    <form class="box form" method="post" action="<?= $action ?>" novalidate id="entry-form">
+    <form class="box form" method="post" action="<?= $action ?>" enctype="multipart/form-data" novalidate id="entry-form">
         <?= csrf_field() ?>
+        <?php if ($msg = error('files')): ?><div class="notice notice--alert"><?= icon('close') ?><span><?= e($msg) ?></span></div><?php endif; ?>
         <div class="field <?= error('title') ? 'has-error' : '' ?>"><label for="title">Título</label><input class="input" id="title" name="title" value="<?= e(old('title', $entry['title'] ?? '')) ?>" required><?= partial('partials/field-error', ['name' => 'title']) ?></div>
         <div class="form-row">
             <div class="field"><label for="section_id">Sección</label>
@@ -31,14 +37,60 @@ $dt = fn (?string $v) => $v ? date('Y-m-d\TH:i', strtotime($v)) : '';
             <div class="field"><label for="hand_note">Nota manuscrita</label><input class="input" id="hand_note" name="hand_note" value="<?= e(old('hand_note', $entry['hand_note'] ?? '')) ?>"></div>
             <div class="field"><label for="category">Categoría</label><input class="input" id="category" name="category" value="<?= e(old('category', $entry['category'] ?? '')) ?>" placeholder="autocuidados, encuentro, video…"><span class="hint">Para filtros y bloques de la sección.</span></div>
         </div>
-        <div class="form-row">
-            <div class="field"><label for="image">Imagen</label><input class="input" id="image" name="image" value="<?= e(old('image', $entry['image'] ?? '')) ?>" placeholder="fotos/archivo.jpg"><span class="hint">Ruta dentro de public/assets/img.</span></div>
-            <div class="field"><label for="label">Texto de la tarjeta sin foto</label><input class="input" id="label" name="label" value="<?= e(old('label', $entry['label'] ?? '')) ?>" placeholder="carta de octubre"></div>
-        </div>
-        <div class="field"><label for="image_caption">Epígrafe de la imagen</label><input class="input" id="image_caption" name="image_caption" value="<?= e(old('image_caption', $entry['image_caption'] ?? '')) ?>"></div>
+        <fieldset class="upload">
+            <legend>Imagen</legend>
+            <div class="upload__row">
+                <div class="upload__preview" data-preview>
+                    <?php if ($url = img_url($entry['image'] ?? null)): ?><img src="<?= e($url) ?>" alt=""><?php else: ?><span>Sin imagen</span><?php endif; ?>
+                </div>
+                <div class="upload__controls">
+                    <label class="btn btn--soft btn--sm upload__button"><?= icon('download') ?> Subir archivo
+                        <input type="file" name="image_file" accept="image/jpeg,image/png,image/webp,image/gif" data-preview-input>
+                    </label>
+                    <span class="hint" data-file-name>JPG, PNG o WebP, hasta 15 MB. Mejor apaisada, de al menos 1200 px de ancho.</span>
+                    <?php if (!empty($entry['image'])): ?><label class="check"><input type="checkbox" name="image_remove" value="1"> Quitar la imagen</label><?php endif; ?>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="field"><label for="label">Texto de la tarjeta sin imagen</label><input class="input" id="label" name="label" value="<?= e(old('label', $entry['label'] ?? '')) ?>" placeholder="carta de octubre"></div>
+                <div class="field"><label for="image_caption">Epígrafe</label><input class="input" id="image_caption" name="image_caption" value="<?= e(old('image_caption', $entry['image_caption'] ?? '')) ?>"></div>
+            </div>
+        </fieldset>
         <div class="field"><label for="excerpt">Adelanto</label><input class="input" id="excerpt" name="excerpt" maxlength="400" value="<?= e(old('excerpt', $entry['excerpt'] ?? '')) ?>"><span class="hint">Se muestra en la tarjeta.</span></div>
-        <div class="field"><label for="body">Texto</label><textarea class="textarea" id="body" name="body" style="min-height:320px"><?= e(old('body', $entry['body'] ?? '')) ?></textarea><span class="hint">Dejá una línea en blanco entre párrafos. Imagen: <code>![epígrafe](fotos/archivo.jpg)</code> · Cita: <code>&gt; texto</code> y abajo <code>— Autora</code> · Recuadro: <code>[para probar en casa]</code> y el texto abajo.</span></div>
-        <div class="field <?= error('media_url') ? 'has-error' : '' ?>"><label for="media_url">Archivo o link</label><input class="input" id="media_url" name="media_url" value="<?= e(old('media_url', $entry['media_url'] ?? '')) ?>" placeholder="https://… (PDF, audio, YouTube o Vimeo)"><?= partial('partials/field-error', ['name' => 'media_url']) ?></div>
+        <div class="field"><div class="upload__label-row"><label for="body">Texto</label>
+            <label class="btn btn--ghost btn--xs upload__button" title="Sube una imagen y la agrega donde está el cursor"><?= icon('plus') ?> Insertar imagen en el texto
+                <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-inline-upload="body" data-url="/admin/subir-imagen">
+            </label></div>
+            <textarea class="textarea" id="body" name="body" style="min-height:320px"><?= e(old('body', $entry['body'] ?? '')) ?></textarea><span class="hint">Dejá una línea en blanco entre párrafos. Para sumar fotos usá “Insertar imagen en el texto” (el epígrafe va entre los corchetes; dos imágenes seguidas se ven lado a lado). Cita: <code>&gt; texto</code> y abajo <code>— Autora</code>. Recuadro: <code>[para probar en casa]</code> y el texto abajo.</span></div>
+        <fieldset class="upload" data-media>
+            <legend>Video, audio o PDF</legend>
+            <div class="upload__tabs" role="radiogroup" aria-label="Origen">
+                <label class="check"><input type="radio" name="media_source" value="link" <?= $source === 'link' ? 'checked' : '' ?>> Link (YouTube, Vimeo u otra dirección)</label>
+                <label class="check"><input type="radio" name="media_source" value="file" <?= $source === 'file' ? 'checked' : '' ?>> Subir archivo</label>
+            </div>
+            <div class="field" data-media-panel="link" <?= $source === 'link' ? '' : 'hidden' ?>>
+                <input class="input" id="media_url" name="media_url" value="<?= e(old('media_url', $mediaIsFile ? '' : $media)) ?>" placeholder="https://www.youtube.com/watch?v=…" aria-label="Link">
+                <span class="hint">Videos: YouTube o Vimeo se ven dentro de la página. También sirve un link directo a un MP3 o PDF.</span>
+            </div>
+            <div data-media-panel="file" <?= $source === 'file' ? '' : 'hidden' ?>>
+                <?php if ($mediaIsFile): ?>
+                    <div class="upload__current">
+                        <?php if (in_array($ext, ['mp3', 'm4a', 'aac', 'ogg', 'wav'], true)): ?>
+                            <audio controls preload="none" src="<?= e($media) ?>"></audio>
+                        <?php elseif (in_array($ext, ['mp4', 'webm', 'mov'], true)): ?>
+                            <video controls preload="metadata" src="<?= e($media) ?>"></video>
+                        <?php else: ?>
+                            <a href="<?= e($media) ?>" target="_blank" rel="noopener"><?= icon('doc') ?> Ver el PDF actual</a>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                <label class="btn btn--soft btn--sm upload__button"><?= icon('download') ?> <?= $mediaIsFile ? 'Reemplazar archivo' : 'Subir archivo' ?>
+                    <input type="file" name="media_file" accept="audio/*,video/mp4,video/webm,video/quicktime,application/pdf" data-file-input>
+                </label>
+                <span class="hint" data-file-name>Audio (MP3, M4A), video (MP4) o PDF. Máximo <?= e($limit) ?> por archivo. Para videos largos conviene YouTube.</span>
+            </div>
+            <?php if ($media !== ''): ?><label class="check"><input type="checkbox" name="media_remove" value="1"> Quitar el video, audio o PDF</label><?php endif; ?>
+        </fieldset>
     </form>
 
     <div style="display:grid;gap:24px">
@@ -48,7 +100,7 @@ $dt = fn (?string $v) => $v ? date('Y-m-d\TH:i', strtotime($v)) : '';
             <div class="field"><label for="event_at">Fecha del encuentro</label><input class="input" id="event_at" name="event_at" type="datetime-local" form="entry-form" value="<?= e($dt(old('event_at', $entry['event_at'] ?? ''))) ?>"><span class="hint">Solo para encuentros (habilita “Agendar”).</span></div>
             <label class="check"><input type="checkbox" name="is_published" value="1" form="entry-form" <?= ($entry['is_published'] ?? 1) ? 'checked' : '' ?>> Publicada</label>
             <label class="check"><input type="checkbox" name="is_preview" value="1" form="entry-form" <?= ($entry['is_preview'] ?? 0) ? 'checked' : '' ?>> Muestra pública (“Así lo ve un miembro”)</label>
-            <button class="btn" type="submit" form="entry-form"><?= $isNew ? 'Crear entrega' : 'Guardar cambios' ?></button>
+            <button class="btn" type="submit" form="entry-form" data-submit-uploading="Subiendo archivos…"><?= $isNew ? 'Crear entrega' : 'Guardar cambios' ?></button>
         </div>
         <?php if (!$isNew): ?>
             <form class="box" method="post" action="/admin/contenidos/<?= (int) $entry['id'] ?>/borrar" data-confirm="¿Borrar esta entrega? No se puede deshacer.">

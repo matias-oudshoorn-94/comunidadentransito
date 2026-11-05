@@ -167,3 +167,20 @@ a.stat:hover { border-color: var(--celeste-agua); color: var(--petroleo); }
 .dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 18px; margin: 0; font-size: .94rem; }
 .dl dt { color: var(--petroleo-suave); }
 .dl dd { margin: 0; font-weight: 600; }
+
+/* Subida de archivos en las entregas */
+.upload { margin: 0; padding: 18px; border: 1px solid var(--linea); border-radius: var(--radius); display: grid; gap: 14px; }
+.upload legend { padding: 0 6px; font-weight: 700; font-size: .95rem; }
+.upload__row { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.upload__preview { display: grid; place-items: center; width: 200px; aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; background: var(--cielo); color: var(--petroleo-suave); font-size: .85rem; }
+.upload__preview img { width: 100%; height: 100%; object-fit: cover; }
+.upload__controls { display: grid; gap: 8px; justify-items: start; flex: 1; min-width: 220px; }
+.upload__button { position: relative; overflow: hidden; cursor: pointer; }
+.upload__button input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload__button.is-busy { opacity: .6; pointer-events: none; }
+.upload__tabs { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.upload__current audio, .upload__current video { width: 100%; max-height: 260px; border-radius: 10px; }
+.upload__current { margin-bottom: 10px; }
+.upload__label-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.admin .input, .admin .select { min-height: 46px; padding: 10px 16px; }
+.admin .textarea { border-radius: 14px; }

@@ -89,6 +89,7 @@ $router->group(['prefix' => '/admin', 'middleware' => ['admin']], function (Rout
     $r->get('/contenidos/{id}', [Admin\EntryController::class, 'edit']);
     $r->post('/contenidos/{id}', [Admin\EntryController::class, 'update']);
     $r->post('/contenidos/{id}/borrar', [Admin\EntryController::class, 'destroy']);
+    $r->post('/subir-imagen', [Admin\EntryController::class, 'uploadInline']);
 
     $r->get('/mensajes', [Admin\MessageController::class, 'index']);
     $r->post('/mensajes/{id}/leido', [Admin\MessageController::class, 'markRead']);

@@ -32,6 +32,7 @@ $nav = [
     <link rel="stylesheet" href="<?= asset('css/components.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/admin.css') ?>">
     <script src="<?= asset('js/app.js') ?>" defer></script>
+    <script src="<?= asset('js/admin.js') ?>" defer></script>
 </head>
 <body class="admin">
     <a class="skip-link" href="#main">Saltar al contenido</a>

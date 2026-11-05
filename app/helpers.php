@@ -269,10 +269,26 @@ function icon(string $name, string $class = 'icon'): string
  */
 function img(?string $src, string $alt = '', string $attrs = 'loading="lazy"'): string
 {
-    if ($src && asset_exists('img/' . $src)) {
-        return '<img src="' . e(asset('img/' . $src)) . '" alt="' . e($alt) . '" ' . $attrs . '>';
+    if ($src && ($url = img_url($src))) {
+        return '<img src="' . e($url) . '" alt="' . e($alt) . '" ' . $attrs . '>';
     }
     return placeholder($alt);
+}
+
+/**
+ * URL de una imagen: "uploads/…" (subida desde el admin) o una ruta dentro de assets/img.
+ * Devuelve null si el archivo no existe.
+ */
+function img_url(?string $src): ?string
+{
+    $src = ltrim((string) $src, '/');
+    if ($src === '') {
+        return null;
+    }
+    if (str_starts_with($src, 'uploads/')) {
+        return is_file(BASE_PATH . '/public/' . $src) ? '/' . $src : null;
+    }
+    return asset_exists('img/' . $src) ? asset('img/' . $src) : null;
 }
 
 /** Fondo de acuarela con texto manuscrito (tarjetas sin foto). */

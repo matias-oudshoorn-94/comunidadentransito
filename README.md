@@ -75,6 +75,13 @@ Programar una vez por día: `php bin/expire.php` (marca como vencidas las membre
 - Textos y fotos de cada sección de Contenidos: `config/sections.php`. Textos generales, testimonios, preguntas y redes: `config/site.php`.
 - Formato del texto de una entrega (admin → Contenidos): párrafos separados por una línea en blanco; `![epígrafe](fotos/archivo.jpg)` para imágenes (dos seguidas van lado a lado); `> cita` con `— Autora` abajo; `[para probar en casa]` y el texto abajo para el recuadro celeste; `@galeria título | fotos/a.jpg fotos/b.jpg` para la tira de fotos al pie.
 
+## Archivos que sube el admin
+
+- Imágenes, audios, videos y PDF de las entregas se guardan en `public/uploads/AAAA/MM/` (no se suben a git). Se verifica el tipo real de cada archivo y la carpeta no ejecuta código.
+- Límite por archivo: lo define PHP. `public/.user.ini` pide 512 MB; si Hostinger no lo toma, cambialo en hPanel → Avanzado → Configuración de PHP (`upload_max_filesize` y `post_max_size`). En local, `composer serve` ya arranca con 512 MB.
+- Videos largos: conviene YouTube (no lista o privado) para no llenar el espacio del hosting.
+- Ojo con el deploy automático: comprobá que no borre `public/uploads/` (subí una imagen de prueba, hacé un deploy y fijate que siga). Hacé backup de esa carpeta junto con la base.
+
 ## Pendiente
 
 - Fotos originales en buena calidad (ver Diseño).

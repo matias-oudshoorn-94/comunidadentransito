@@ -53,7 +53,7 @@ final class ErrorHandler
             return;
         }
 
-        $template = in_array($status, [403, 404, 419], true) ? "errors/{$status}" : 'errors/500';
+        $template = in_array($status, [403, 404, 413, 419], true) ? "errors/{$status}" : 'errors/500';
         try {
             echo View::render($template, ['title' => 'Algo no salió bien', 'message' => $e->getMessage()], 'layouts/main');
         } catch (Throwable) {

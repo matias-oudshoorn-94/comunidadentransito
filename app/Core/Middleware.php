@@ -37,6 +37,9 @@ final class Middleware
                 break;
 
             case 'csrf':
+                if ($_POST === [] && $_FILES === [] && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0 && !$request->json()) {
+                    throw new HttpException(413, 'El archivo es más grande de lo que permite el servidor (' . \App\Services\Uploader::serverLimit() . ').');
+                }
                 $token = $request->input('_token') ?? $request->header('X-CSRF-Token');
                 if (!Csrf::verify(is_string($token) ? $token : null)) {
                     throw new HttpException(419, 'La sesión expiró. Volvé a intentarlo.');

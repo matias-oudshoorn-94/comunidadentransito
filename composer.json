@@ -18,7 +18,7 @@
         ]
     },
     "scripts": {
-        "serve": "php -S localhost:8000 -t public public/index.php",
+        "serve": "php -d upload_max_filesize=512M -d post_max_size=520M -S localhost:8000 -t public public/index.php",
         "migrate": "php bin/migrate.php",
         "fresh": "php bin/migrate.php --fresh --seed"
     },

@@ -8,3 +8,5 @@
 /database/export/
 /design/figma/*.png
 /design/figma/*.jpg
+/public/uploads/*
+!/public/uploads/.htaccess

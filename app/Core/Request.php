@@ -71,6 +71,13 @@ final class Request
         return array_intersect_key($all, array_flip($keys));
     }
 
+    /** Archivo subido en un campo (o null si no vino ninguno). */
+    public function file(string $key): ?array
+    {
+        $file = $_FILES[$key] ?? null;
+        return is_array($file) && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE ? $file : null;
+    }
+
     public function header(string $name): ?string
     {
         $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));

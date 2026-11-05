@@ -5,7 +5,8 @@
 $slug = $section['slug'];
 $kind = $entry['kind'];
 $media = (string) $entry['media_url'];
-$isPdf = $media !== '' && str_ends_with(strtolower(parse_url($media, PHP_URL_PATH) ?? ''), '.pdf');
+$ext = strtolower(pathinfo(parse_url($media, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
+$isPdf = $ext === 'pdf';
 $article = $slug === 'pispeando-arte';
 [$body, $gallery] = rich_text($entry['body'], $canRead ? null : 2);
 $sectionUrl = '/contenidos/' . $slug;
@@ -16,6 +17,11 @@ if (preg_match('~(?:youtube\.com/watch\?v=|youtu\.be/)([\w-]{6,})~', $media, $m)
 } elseif (preg_match('~vimeo\.com/(\d+)~', $media, $m)) {
     $embed = 'https://player.vimeo.com/video/' . $m[1];
 }
+
+$isAudio = in_array($ext, ['mp3', 'm4a', 'aac', 'ogg', 'wav'], true);
+$isVideo = $embed !== null || in_array($ext, ['mp4', 'webm', 'mov'], true);
+$showAudio = $kind === 'episodio' || $isAudio;
+$showVideo = !$showAudio && ($kind === 'grabacion' || $isVideo);
 
 $lock = function () use ($sectionUrl) { ?>
     <div class="lock-panel">
@@ -100,7 +106,7 @@ $lock = function () use ($sectionUrl) { ?>
                 </div>
                 <hr class="entry__rule">
 
-                <?php if ($canRead && $kind === 'episodio'): ?>
+                <?php if ($canRead && $showAudio): ?>
                     <div class="audio-box" data-audio>
                         <button class="audio-box__btn" type="button" aria-label="Reproducir" <?= $media ? '' : 'disabled' ?> data-audio-toggle><?= icon('triangle') ?></button>
                         <div class="audio-box__main">
@@ -108,14 +114,14 @@ $lock = function () use ($sectionUrl) { ?>
                             <div class="audio-box__bar"><span data-audio-bar></span></div>
                             <div class="audio-box__time" data-audio-time>0:00 · <?= $media ? 'escuchá cuando quieras' : 'duración a confirmar' ?></div>
                         </div>
-                        <?php if ($media): ?><audio preload="none" src="<?= e($media) ?>"></audio><?php endif; ?>
+                        <?php if ($media): ?><audio preload="metadata" src="<?= e($media) ?>"></audio><?php endif; ?>
                     </div>
-                <?php elseif ($canRead && $kind === 'grabacion'): ?>
+                <?php elseif ($canRead && $showVideo): ?>
                     <div class="video-box">
                         <?php if ($embed): ?>
                             <iframe src="<?= e($embed) ?>" title="<?= e($entry['title']) ?>" allow="fullscreen; picture-in-picture" loading="lazy"></iframe>
                         <?php elseif ($media): ?>
-                            <video controls preload="none" src="<?= e($media) ?>"></video>
+                            <video controls preload="metadata" playsinline src="<?= e($media) ?>"></video>
                         <?php else: ?>
                             <?= placeholder('') ?>
                             <span class="play play--solid" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)"><?= icon('triangle') ?></span>
