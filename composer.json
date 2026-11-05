@@ -1,0 +1,28 @@
+{
+    "name": "comunidad-en-transito/web",
+    "description": "Sitio y área de miembros de Comunidad en Tránsito",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.2",
+        "ext-pdo": "*",
+        "ext-curl": "*",
+        "ext-openssl": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/helpers.php"
+        ]
+    },
+    "scripts": {
+        "serve": "php -S localhost:8000 -t public public/index.php",
+        "migrate": "php bin/migrate.php",
+        "fresh": "php bin/migrate.php --fresh --seed"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

@@ -1,0 +1,14 @@
+# Hostinger publica la raíz del repositorio (public_html).
+# Este archivo manda todo a public/ y bloquea el código, la configuración y el .env.
+Options -Indexes
+RewriteEngine On
+
+# Nada de afuera puede leer estas carpetas y archivos
+RewriteRule ^(app|bin|config|database|routes|storage|vendor)(/|$) - [F,L]
+RewriteRule ^(\.env.*|\.git.*|\.htaccess|composer\.(json|lock)|README\.md)$ - [F,L]
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule (^|/)\. - [F,L]
+
+# Todo lo demás se sirve desde public/
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]

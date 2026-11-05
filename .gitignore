@@ -1,0 +1,8 @@
+/vendor/
+/.env
+/storage/*.sqlite
+/storage/logs/*
+!/storage/logs/.gitkeep
+.DS_Store
+.idea/
+/database/export/

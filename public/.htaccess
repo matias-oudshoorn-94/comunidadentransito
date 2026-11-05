@@ -1,0 +1,12 @@
+# Apache: todo lo que no sea un archivo existente pasa por index.php
+Options -Indexes
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|svg|jpg|jpeg|png|webp|woff2)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>

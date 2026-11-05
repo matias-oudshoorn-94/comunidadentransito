@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke-linecap="round">
+  <!-- Logo sintético provisorio (reemplazar por el de Figma) -->
+  <circle cx="24" cy="24" r="22.5" fill="#E3F2F4"/>
+  <circle cx="30" cy="17" r="5" fill="#C8A888" opacity=".55"/>
+  <path d="M9 27c3.5 0 3.5-3.5 7.5-3.5S20 27 24 27s3.5-3.5 7.5-3.5S35 27 39 27" stroke="#2C7A89" stroke-width="1.6"/>
+  <path d="M11 33c3 0 3-3 6.5-3s3.5 3 6.5 3 3-3 6.5-3 3.5 3 6.5 3" stroke="#2C7A89" stroke-width="1.6" opacity=".55"/>
+</svg>
