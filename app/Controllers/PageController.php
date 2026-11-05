@@ -8,27 +8,18 @@ use App\Core\Controller;
 use App\Models\Book;
 use App\Models\ContactMessage;
 use App\Models\Plan;
-use App\Models\Section;
 use App\Services\Mailer;
 
 final class PageController extends Controller
 {
     public function community(): void
     {
-        $this->view('pages/community', [
-            'title'  => 'La Comunidad',
-            'groups' => Section::grouped(),
-        ]);
+        $this->view('pages/community', ['title' => 'La Comunidad', 'fromPrice' => precio_desde()]);
     }
 
     public function memberships(): void
     {
-        $this->view('pages/memberships', [
-            'title'   => 'Membresías',
-            'periods' => Plan::byPeriod(),
-            'groups'  => Section::grouped(),
-            'faq'     => config('site.faq'),
-        ]);
+        $this->view('pages/memberships', ['title' => 'Membresías', 'periods' => Plan::byPeriod()]);
     }
 
     public function books(): void

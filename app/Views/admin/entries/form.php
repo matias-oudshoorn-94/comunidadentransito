@@ -23,8 +23,21 @@ $dt = fn (?string $v) => $v ? date('Y-m-d\TH:i', strtotime($v)) : '';
                 </select>
             </div>
         </div>
+        <div class="form-row">
+            <div class="field"><label for="kicker">Antetítulo</label><input class="input" id="kicker" name="kicker" value="<?= e(old('kicker', $entry['kicker'] ?? '')) ?>" placeholder="PODCAST · CHIRIMBITAS · EPISODIO 1"></div>
+            <div class="field"><label for="meta">Línea de autor</label><input class="input" id="meta" name="meta" value="<?= e(old('meta', $entry['meta'] ?? '')) ?>" placeholder="Silvina Oudshoorn · 6 minutos de lectura"></div>
+        </div>
+        <div class="form-row">
+            <div class="field"><label for="hand_note">Nota manuscrita</label><input class="input" id="hand_note" name="hand_note" value="<?= e(old('hand_note', $entry['hand_note'] ?? '')) ?>"></div>
+            <div class="field"><label for="category">Categoría</label><input class="input" id="category" name="category" value="<?= e(old('category', $entry['category'] ?? '')) ?>" placeholder="autocuidados, encuentro, video…"><span class="hint">Para filtros y bloques de la sección.</span></div>
+        </div>
+        <div class="form-row">
+            <div class="field"><label for="image">Imagen</label><input class="input" id="image" name="image" value="<?= e(old('image', $entry['image'] ?? '')) ?>" placeholder="fotos/archivo.jpg"><span class="hint">Ruta dentro de public/assets/img.</span></div>
+            <div class="field"><label for="label">Texto de la tarjeta sin foto</label><input class="input" id="label" name="label" value="<?= e(old('label', $entry['label'] ?? '')) ?>" placeholder="carta de octubre"></div>
+        </div>
+        <div class="field"><label for="image_caption">Epígrafe de la imagen</label><input class="input" id="image_caption" name="image_caption" value="<?= e(old('image_caption', $entry['image_caption'] ?? '')) ?>"></div>
         <div class="field"><label for="excerpt">Adelanto</label><input class="input" id="excerpt" name="excerpt" maxlength="400" value="<?= e(old('excerpt', $entry['excerpt'] ?? '')) ?>"><span class="hint">Se muestra en la tarjeta.</span></div>
-        <div class="field"><label for="body">Texto</label><textarea class="textarea" id="body" name="body" style="min-height:320px"><?= e(old('body', $entry['body'] ?? '')) ?></textarea><span class="hint">Dejá una línea en blanco entre párrafos.</span></div>
+        <div class="field"><label for="body">Texto</label><textarea class="textarea" id="body" name="body" style="min-height:320px"><?= e(old('body', $entry['body'] ?? '')) ?></textarea><span class="hint">Dejá una línea en blanco entre párrafos. Imagen: <code>![epígrafe](fotos/archivo.jpg)</code> · Cita: <code>&gt; texto</code> y abajo <code>— Autora</code> · Recuadro: <code>[para probar en casa]</code> y el texto abajo.</span></div>
         <div class="field <?= error('media_url') ? 'has-error' : '' ?>"><label for="media_url">Archivo o link</label><input class="input" id="media_url" name="media_url" value="<?= e(old('media_url', $entry['media_url'] ?? '')) ?>" placeholder="https://… (PDF, audio, YouTube o Vimeo)"><?= partial('partials/field-error', ['name' => 'media_url']) ?></div>
     </form>
 

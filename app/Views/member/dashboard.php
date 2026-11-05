@@ -1,89 +1,96 @@
 <?php
 /** D1 · Mi Comunidad
- * @var array $user @var array|null $membership @var array $sections @var array $latest @var array $events @var array|null $rune @var bool $canRunes */
-$firstName = explode(' ', trim($user['name']))[0];
+ * @var array $user @var array|null $membership @var array $latest @var array|null $event @var array|null $rune @var bool $canRunes */
+$mes = mes_nombre((int) date('n'));
+$featured = $latest[0] ?? null;
+$minis = array_slice($latest, 1, 2);
+$group = (string) config('site.social.whatsapp_group');
 ?>
-<section class="member-hero has-washes">
-    <?= partial('partials/washes') ?>
-    <div class="container">
+<section class="member-head">
+    <span class="wash wash--sea" aria-hidden="true"></span>
+    <div class="container" style="position:relative">
         <span class="kicker">Mi Comunidad</span>
-        <h1>Hola, <?= e($firstName) ?></h1>
-        <p class="lead"><?= $membership ? 'Esto es lo nuevo desde tu última visita.' : 'Todavía no tenés una membresía activa.' ?></p>
+        <h1>Hola, <?= e(first_name($user['name'])) ?></h1>
+        <span class="hand">esto es lo nuevo de <?= e($mes) ?></span>
     </div>
 </section>
 
-<section class="section section--tight" style="padding-top:0">
-    <div class="container member-grid">
-        <div class="grid" style="gap:28px">
-            <?php if (!$membership): ?>
-                <div class="panel panel--sand">
-                    <h2 style="font-size:1.5rem">Elegí tu membresía</h2>
-                    <p class="muted">Con Orilla o Inmersión se abren las secciones de la comunidad.</p>
-                    <a class="btn" href="/membresias">Ver membresías</a>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($sections): ?>
-                <div class="panel">
-                    <h2 style="font-size:1.4rem">Tus secciones</h2>
-                    <div class="shortcut-grid">
-                        <?php foreach ($sections as $s): ?>
-                            <a class="shortcut" href="/contenidos/<?= e($s['slug']) ?>"><?= icon($s['icon'] ?? 'sparkle') ?><?= e($s['name']) ?></a>
-                        <?php endforeach; ?>
+<div class="container dash">
+    <div>
+        <h2>Lo nuevo del mes</h2>
+        <?php if (!$membership): ?>
+            <div class="panel panel--sand" style="margin-bottom:18px">
+                <h3>Todavía no tenés una membresía activa</h3>
+                <p class="muted">Elegí Orilla o Inmersión para abrir las secciones de la Comunidad.</p>
+                <a class="btn" href="/membresias">Ver membresías</a>
+            </div>
+        <?php endif; ?>
+        <div class="dash__news">
+            <?php if ($featured): ?>
+                <article class="card card--feature" style="background:var(--blanco);border-color:var(--linea)">
+                    <a class="card__media" href="<?= e($featured['url']) ?>" tabindex="-1" aria-hidden="true" style="min-height:280px"><?= $featured['image'] ? img($featured['image'], $featured['title']) : placeholder($featured['label'] ?? '') ?></a>
+                    <div class="card__body">
+                        <div style="display:flex;gap:10px;align-items:center"><span class="pill">Nueva</span><span class="kicker"><?= e($featured['section_name']) ?></span></div>
+                        <h3><a href="<?= e($featured['url']) ?>"><?= e($featured['title']) ?></a></h3>
+                        <p><?= e(excerpt($featured['excerpt'] ?: $featured['meta'], 90)) ?></p>
+                        <div class="card__actions"><a class="btn" href="<?= e($featured['url']) ?>">Leer la entrega</a></div>
                     </div>
-                </div>
+                </article>
             <?php endif; ?>
-
-            <?php if ($latest): ?>
-                <div class="panel">
-                    <h2 style="font-size:1.4rem">Lo último</h2>
-                    <ul class="list-plain">
-                        <?php foreach ($latest as $item): ?>
-                            <li>
-                                <a class="list-row" href="/contenidos/<?= e($item['section_slug']) ?>/<?= e($item['slug']) ?>">
-                                    <div><span class="kicker" style="margin:0 0 4px;font-size:.66rem"><?= e($item['section_name']) ?></span><h4><?= e($item['title']) ?></h4></div>
-                                    <span class="small muted"><?= fecha_corta($item['published_at']) ?></span>
-                                </a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
+            <?php if ($minis): ?>
+                <div class="dash__pair">
+                    <?php foreach ($minis as $m): ?>
+                        <article class="mini">
+                            <?= $m['image'] ? img($m['image'], '') : '<span style="width:96px;height:96px;border-radius:12px;overflow:hidden;flex:none">' . placeholder('') . '</span>' ?>
+                            <div>
+                                <span class="kicker"><?= e($m['section_name']) ?></span>
+                                <h3><?= e($m['title']) ?></h3>
+                                <a class="link-arrow" href="<?= e($m['url']) ?>"><?= $m['media_url'] && str_ends_with(strtolower($m['media_url']), '.pdf') ? 'Descargar PDF' : 'Leer' ?> →</a>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
         </div>
+    </div>
 
-        <aside class="grid" style="gap:28px">
-            <?php if ($membership): ?>
-                <div class="panel panel--sky member-card">
-                    <span class="kicker" style="margin:0">Tu membresía</span>
-                    <span class="member-card__plan"><?= e($membership['plan_name']) ?></span>
-                    <span class="status status--active">Activa hasta el <?= fecha($membership['ends_at']) ?></span>
-                    <a href="/mi-cuenta" class="small" style="margin-top:8px">Ver Mi cuenta →</a>
-                </div>
-            <?php endif; ?>
-
+    <aside>
+        <h2>Tu mes</h2>
+        <div class="dash__side">
+            <div class="row-card row-card--stack">
+                <span class="icon-dot"><?= icon('users') ?></span>
+                <div class="row-card__text"><h3>Próximo encuentro</h3><p><?= $event ? e(fecha($event['event_at'], true)) . ' · por Zoom' : 'Fecha y hora a confirmar · por Zoom' ?></p></div>
+                <a class="btn btn--outline" href="<?= $event ? e('/contenidos/' . $event['section_slug'] . '/' . $event['slug'] . '/agendar') : '/contenidos/materiales-para-ver' ?>">Agendar</a>
+            </div>
+            <div class="row-card">
+                <span class="icon-dot"><?= icon('mail') ?></span>
+                <div class="row-card__text"><h3>Tu carta de <?= e($mes) ?></h3><p>En camino a tu casa</p></div>
+            </div>
             <?php if ($canRunes): ?>
-                <div class="panel center">
-                    <span class="kicker">Runa del día</span>
-                    <?php if ($rune): ?>
-                        <div class="rune-face" style="width:96px;font-size:2.6rem;margin-bottom:14px"><?= e($rune['symbol']) ?></div>
-                        <p style="font-family:var(--font-title);font-weight:600"><?= e($rune['prompt']) ?></p>
-                    <?php else: ?>
-                        <p class="muted">Todavía no sacaste tu runa de hoy.</p>
-                        <a class="btn btn--soft btn--sm" href="/contenidos/runas-de-letras">Sacar una runa</a>
-                    <?php endif; ?>
+                <div class="row-card row-card--sky row-card--stack">
+                    <span class="icon-dot"><?= icon('sparkle') ?></span>
+                    <div class="row-card__text"><h3>Tu runa de hoy</h3><p><?= $rune ? e($rune['name'] . ' · ' . $rune['meaning']) : 'Sacá una del mazo' ?></p></div>
+                    <a class="btn" href="/contenidos/runas-de-letras"><?= $rune ? 'Ver mi runa' : 'Sacar una runa' ?></a>
                 </div>
             <?php endif; ?>
+            <div class="row-card row-card--stack">
+                <span class="icon-dot"><?= icon('cup') ?></span>
+                <div class="row-card__text"><h3>Cafetería en tránsito</h3><p>Charlas en el grupo de WhatsApp</p></div>
+                <a class="btn btn--outline" href="<?= e($group ?: '/contenidos/cafeteria-en-transito') ?>" <?= $group ? 'target="_blank" rel="noopener"' : '' ?>>Ir al grupo</a>
+            </div>
+        </div>
+    </aside>
+</div>
 
-            <?php if ($events): ?>
-                <div class="panel">
-                    <h2 style="font-size:1.3rem">Próximos encuentros</h2>
-                    <ul class="list-plain">
-                        <?php foreach ($events as $ev): ?>
-                            <li><a class="list-row" href="/contenidos/<?= e($ev['section_slug']) ?>/<?= e($ev['slug']) ?>"><div><h4><?= e($ev['title']) ?></h4><span class="small muted"><?= fecha($ev['event_at'], true) ?></span></div><?= icon('calendar') ?></a></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-        </aside>
+<section class="band band--white">
+    <div class="container">
+        <h2 style="font-size:1.85rem">Explorá por grupo</h2>
+        <nav class="groups-pills" aria-label="Grupos">
+            <a href="/contenidos#leer">Leer</a>
+            <a href="/contenidos/materiales-para-escuchar">Ver y escuchar</a>
+            <a href="/contenidos#crear">Crear</a>
+            <a href="/contenidos#encontrarnos">Encuentros</a>
+            <a href="/contenidos/lugares">Viajes y celebraciones</a>
+        </nav>
     </div>
 </section>

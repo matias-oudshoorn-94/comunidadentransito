@@ -1,96 +1,92 @@
 <?php
-/** C1 · Compra  @var array $plan @var array $plans @var array $gateways */
+/** C1 · Compra  @var array $plan @var array $gateways */
 $user = auth();
 $tiers = config('site.tiers');
-$periodText = ['mensual' => 'por mes', 'semestral' => 'cada 6 meses', 'anual' => 'por año'];
-$selectedGateway = old('gateway', array_key_first($gateways) ?? '');
+$periodText = ['mensual' => 'Mensual', 'semestral' => 'Semestral', 'anual' => 'Anual'];
+$renewText = ['mensual' => 'Cada mes', 'semestral' => 'Cada 6 meses', 'anual' => 'Cada año'];
+$hasMp = isset($gateways['mercadopago']);
 ?>
-<section class="page-hero" style="padding-bottom:24px">
-    <?= partial('partials/washes') ?>
-    <div class="container">
-        <nav class="breadcrumb" aria-label="Ruta"><a href="/membresias">Membresías</a> <span aria-hidden="true">/</span> <span>Compra</span></nav>
-        <span class="kicker">Compra</span>
-        <h1>Ya casi estás adentro</h1>
-    </div>
-</section>
+<div class="container" style="padding-bottom:96px">
+    <ol class="stepper" aria-label="Pasos de la compra">
+        <li class="stepper__step is-done"><span class="stepper__dot"><?= icon('check') ?></span> Plan</li>
+        <li class="stepper__line" aria-hidden="true"></li>
+        <li class="stepper__step is-current" aria-current="step"><span class="stepper__dot">2</span> Tus datos</li>
+        <li class="stepper__line" aria-hidden="true"></li>
+        <li class="stepper__step"><span class="stepper__dot">3</span> Pago</li>
+    </ol>
 
-<section class="section section--tight" style="padding-top:0">
-    <div class="container checkout">
-        <form class="form" method="post" action="/compra" novalidate>
-            <?= csrf_field() ?>
-            <input type="hidden" name="plan_id" value="<?= (int) $plan['id'] ?>">
+    <form class="checkout" method="post" action="/compra" novalidate>
+        <?= csrf_field() ?>
+        <input type="hidden" name="plan_id" value="<?= (int) $plan['id'] ?>">
 
+        <div class="panel form">
+            <div>
+                <h2>Tus datos</h2>
+                <span class="hand" style="font-size:1.35rem;margin:0">así te damos la bienvenida</span>
+            </div>
             <?php if (!$user): ?>
-                <div class="panel form">
-                    <div>
-                        <h2 style="font-size:1.4rem;margin-bottom:4px">1. Tu cuenta</h2>
-                        <p class="small muted" style="margin:0">¿Ya tenés cuenta? <a href="/ingresar">Ingresá</a> y volvé a esta página.</p>
-                    </div>
-                    <div class="field <?= error('name') ? 'has-error' : '' ?>">
-                        <label for="name">Nombre</label>
-                        <input class="input" id="name" name="name" value="<?= e(old('name')) ?>" autocomplete="name" required>
-                        <?= partial('partials/field-error', ['name' => 'name']) ?>
-                    </div>
-                    <div class="form-row">
-                        <div class="field <?= error('email') ? 'has-error' : '' ?>">
-                            <label for="email">Email</label>
-                            <input class="input" id="email" name="email" type="email" value="<?= e(old('email')) ?>" autocomplete="email" required>
-                            <?= partial('partials/field-error', ['name' => 'email']) ?>
-                        </div>
-                        <div class="field <?= error('password') ? 'has-error' : '' ?>">
-                            <label for="password">Contraseña</label>
-                            <input class="input" id="password" name="password" type="password" autocomplete="new-password" minlength="8" required>
-                            <?= partial('partials/field-error', ['name' => 'password']) ?>
-                        </div>
-                    </div>
+                <div class="field <?= error('name') ? 'has-error' : '' ?>">
+                    <label for="name">Nombre y apellido</label>
+                    <input class="input" id="name" name="name" value="<?= e(old('name')) ?>" autocomplete="name" placeholder="¿Cómo te llamás?" required>
+                    <?= partial('partials/field-error', ['name' => 'name']) ?>
                 </div>
+                <div class="field <?= error('email') ? 'has-error' : '' ?>">
+                    <label for="email">Email</label>
+                    <input class="input" id="email" name="email" type="email" value="<?= e(old('email')) ?>" autocomplete="email" placeholder="nombre@correo.com" required>
+                    <?= partial('partials/field-error', ['name' => 'email']) ?>
+                </div>
+                <div class="field <?= error('password') ? 'has-error' : '' ?>">
+                    <label for="password">Creá una contraseña</label>
+                    <input class="input" id="password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres" required>
+                    <?= partial('partials/field-error', ['name' => 'password']) ?>
+                </div>
+                <p class="small muted" style="margin:-6px 0 0">¿Ya tenés cuenta? <a href="/ingresar">Ingresá</a> y volvé a esta página.</p>
             <?php else: ?>
-                <div class="notice"><?= icon('user') ?><span>Comprás como <strong><?= e($user['name']) ?></strong> (<?= e($user['email']) ?>).</span></div>
+                <div class="notice"><?= icon('user') ?><span>Te sumás como <strong><?= e($user['name']) ?></strong> (<?= e($user['email']) ?>).</span></div>
             <?php endif; ?>
 
-            <div class="panel form">
-                <h2 style="font-size:1.4rem;margin:0"><?= $user ? '1' : '2' ?>. Medio de pago</h2>
-                <?php if ($gateways === []): ?>
-                    <div class="notice notice--alert"><?= icon('card') ?><span>Los pagos online no están disponibles en este momento. Escribinos por <a href="/contacto">contacto</a>.</span></div>
-                <?php endif; ?>
-                <?php foreach ($gateways as $key => $g): ?>
-                    <label class="gateway-option">
-                        <input type="radio" name="gateway" value="<?= e($key) ?>" <?= $selectedGateway === $key ? 'checked' : '' ?>>
-                        <span class="gateway-option__box">
-                            <span class="gateway-option__dot"></span>
-                            <span><strong><?= e($g['label']) ?></strong><br><span class="small muted"><?= e($g['hint']) ?></span></span>
-                            <span class="gateway-option__price"><?= money($g['currency'] === 'USD' ? $plan['price_usd'] : $plan['price_ars'], $g['currency']) ?></span>
-                        </span>
-                    </label>
-                <?php endforeach; ?>
-
-                <label class="check <?= error('terms') ? 'has-error' : '' ?>">
-                    <input type="checkbox" name="terms" value="1" required>
-                    <span>Acepto las condiciones de la membresía. Puedo darme de baja cuando quiera desde Mi cuenta.</span>
-                </label>
-                <?= partial('partials/field-error', ['name' => 'terms']) ?>
-
-                <button class="btn btn--block" type="submit" <?= $gateways === [] ? 'disabled' : '' ?>>Ir a pagar <?= icon('arrow', 'icon icon--move') ?></button>
-                <p class="small muted center" style="margin:0"><?= icon('lock', 'icon') ?> El pago se hace en el sitio seguro de Mercado Pago o PayPal.</p>
+            <div class="address-head">
+                <span class="icon-dot"><?= icon('mail') ?></span>
+                <div><h3>Dirección para la carta Slow Mood</h3><p>Adonde te llega la carta de Silvina cada mes.</p></div>
             </div>
-        </form>
+            <div class="field <?= error('address') ? 'has-error' : '' ?>">
+                <label for="address">Calle y número</label>
+                <input class="input" id="address" name="address" value="<?= e(old('address', $user['address'] ?? '')) ?>" autocomplete="street-address" placeholder="Ej.: Av. Colón 1234, depto 3" required>
+                <?= partial('partials/field-error', ['name' => 'address']) ?>
+            </div>
+            <div class="form-row">
+                <div class="field <?= error('city') ? 'has-error' : '' ?>">
+                    <label for="city">Ciudad</label>
+                    <input class="input" id="city" name="city" value="<?= e(old('city', $user['city'] ?? '')) ?>" autocomplete="address-level2" placeholder="Mar del Plata" required>
+                    <?= partial('partials/field-error', ['name' => 'city']) ?>
+                </div>
+                <div class="field <?= error('postal_code') ? 'has-error' : '' ?>">
+                    <label for="postal_code">Código postal</label>
+                    <input class="input" id="postal_code" name="postal_code" value="<?= e(old('postal_code', $user['postal_code'] ?? '')) ?>" autocomplete="postal-code" placeholder="7600">
+                    <?= partial('partials/field-error', ['name' => 'postal_code']) ?>
+                </div>
+            </div>
+        </div>
 
-        <aside class="checkout__summary panel panel--sky" aria-label="Resumen">
-            <span class="kicker">Tu membresía</span>
-            <h2 style="font-size:1.7rem"><?= e($plan['name']) ?></h2>
-            <p class="muted"><?= e($plan['description']) ?></p>
-            <div class="summary-row"><span>Nivel</span><strong><?= e($tiers[$plan['tier']]['name']) ?></strong></div>
-            <div class="summary-row"><span>Duración</span><strong><?= (int) $plan['months'] ?> <?= (int) $plan['months'] === 1 ? 'mes' : 'meses' ?></strong></div>
-            <div class="summary-row"><span>Total</span><span class="summary-total"><?= money($plan['price_ars']) ?></span></div>
-            <p class="small muted" style="margin:6px 0 16px"><?= e($periodText[$plan['period']]) ?> · o <?= money($plan['price_usd'], 'USD') ?> con PayPal</p>
-            <details>
-                <summary class="small" style="cursor:pointer;color:var(--turquesa);font-weight:700">Cambiar de plan</summary>
-                <ul class="list-plain" style="margin-top:8px">
-                    <?php foreach ($plans as $p): if ((int) $p['id'] === (int) $plan['id']) continue; ?>
-                        <li><a class="list-row" href="/compra?plan=<?= e($p['slug']) ?>"><span><?= e($p['name']) ?></span><span class="small"><?= money($p['price_ars']) ?></span></a></li>
-                    <?php endforeach; ?>
-                </ul>
-            </details>
+        <aside class="panel panel--sky summary" aria-label="Tu membresía">
+            <h2>Tu membresía</h2>
+            <div class="summary__plan">
+                <?= img('fotos/cafe-taza.jpg', '', '') ?>
+                <div><strong><?= e($tiers[$plan['tier']]['name']) ?></strong><span><?= e($periodText[$plan['period']]) ?> · <a href="/membresias">Cambiar plan</a></span></div>
+            </div>
+            <div class="summary__row"><span>Renovación</span><strong><?= e($renewText[$plan['period']]) ?></strong></div>
+            <div class="summary__row"><span>Primera carta</span><strong>Llega en los próximos días</strong></div>
+            <div class="summary__total"><span>Total hoy</span><strong><?= money($plan['price_ars']) ?></strong></div>
+            <?php if ($hasMp): ?>
+                <button class="btn btn--block btn--lg" type="submit" name="gateway" value="mercadopago">Pagar con Mercado Pago</button>
+            <?php elseif ($gateways === []): ?>
+                <div class="notice notice--alert">Los pagos online no están disponibles en este momento. Escribinos por WhatsApp.</div>
+            <?php endif; ?>
+            <p class="note">Cancelás cuando quieras desde Mi cuenta.</p>
+            <?php if (isset($gateways['paypal'])): ?>
+                <p class="summary__alt">¿Estás fuera de Argentina? <button class="btn--link" type="submit" name="gateway" value="paypal">Pagá con PayPal (<?= money($plan['price_usd'], 'USD') ?>)</button></p>
+            <?php endif; ?>
+            <a class="link-arrow small" href="<?= e(whatsapp('Hola Silvina, tengo una duda sobre la membresía.')) ?>" target="_blank" rel="noopener">¿Dudas? Escribime por WhatsApp</a>
         </aside>
-    </div>
-</section>
+    </form>
+</div>

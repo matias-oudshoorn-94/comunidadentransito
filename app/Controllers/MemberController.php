@@ -31,13 +31,29 @@ final class MemberController extends Controller
         ));
         $ids = array_column($sections, 'id');
 
+        // Lo nuevo del mes: lo último de cada sección abierta (una entrega por sección)
+        $latest = [];
+        foreach (Entry::latestIn($ids, 30) as $e) {
+            if (isset($latest[$e['section_id']]) || $e['kind'] === 'encuentro') {
+                continue;
+            }
+            $latest[$e['section_id']] = $e + ['url' => "/contenidos/{$e['section_slug']}/{$e['slug']}"];
+        }
+        // Orden de Figma: la entrega destacada y después Lugares y Capituleando
+        $priority = ['pispeando-arte', 'lugares', 'capituleando'];
+        $latest = array_values($latest);
+        usort($latest, function ($a, $b) use ($priority) {
+            $pa = array_search($a['section_slug'], $priority, true);
+            $pb = array_search($b['section_slug'], $priority, true);
+            return ($pa === false ? 99 : $pa) <=> ($pb === false ? 99 : $pb);
+        });
+
         $this->view('member/dashboard', [
             'title'      => 'Mi Comunidad',
             'user'       => $user,
             'membership' => Membership::currentFor((int) $user['id']),
-            'sections'   => $sections,
-            'latest'     => Entry::latestIn($ids, 6),
-            'events'     => Entry::upcomingEvents($ids, 3),
+            'latest'     => array_slice($latest, 0, 3),
+            'event'      => Entry::upcomingEvents($ids, 1)[0] ?? null,
             'rune'       => Rune::drawnToday((int) $user['id']),
             'canRunes'   => in_array('runas-de-letras', array_column($sections, 'slug'), true),
         ]);
@@ -47,30 +63,54 @@ final class MemberController extends Controller
     public function account(): void
     {
         $user = Auth::user();
+        $current = Membership::currentFor((int) $user['id']);
+        if ($current) {
+            $current['last_amount'] = \App\Core\Database::value(
+                "SELECT amount FROM payments WHERE membership_id = ? AND status = 'approved' ORDER BY id DESC LIMIT 1",
+                [$current['id']],
+            );
+        }
         $this->view('member/account', [
-            'title'       => 'Mi cuenta',
-            'user'        => $user,
-            'current'     => Membership::currentFor((int) $user['id']),
-            'memberships' => Membership::forUser((int) $user['id']),
-            'payments'    => Payment::forUser((int) $user['id']),
+            'title'    => 'Mi cuenta',
+            'user'     => $user,
+            'current'  => $current,
+            'payments' => Payment::forUser((int) $user['id']),
         ]);
     }
 
+    /** Comprobante imprimible de un pago aprobado */
+    public function receipt(string $id): void
+    {
+        $user = Auth::user();
+        $payment = \App\Core\Database::one(
+            "SELECT pay.*, p.name AS plan_name FROM payments pay LEFT JOIN plans p ON p.id = pay.plan_id WHERE pay.id = ? AND pay.user_id = ? AND pay.status = 'approved'",
+            [(int) $id, $user['id']],
+        ) ?? $this->abort(404);
+        $this->view('member/receipt', ['title' => 'Comprobante', 'payment' => $payment, 'user' => $user]);
+    }
+
+    /** Cada fila de "Tus datos" guarda solo su campo */
     public function updateProfile(): void
     {
         $user = Auth::user();
-        $data = $this->validate([
-            'name'    => 'required|max:120',
-            'email'   => 'required|email|max:190|unique:users,email,' . $user['id'],
-            'phone'   => 'nullable|max:40',
-            'country' => 'nullable|max:60',
-        ]);
-        User::update((int) $user['id'], [
-            'name'    => $data['name'],
-            'email'   => strtolower($data['email']),
-            'phone'   => $data['phone'] ?? null,
-            'country' => $data['country'] ?? null,
-        ]);
+        $sent = array_intersect_key($this->request->all(), array_flip(['name', 'email', 'address', 'city', 'postal_code']));
+        $rules = [
+            'name'        => 'required|max:120',
+            'email'       => 'required|email|max:190|unique:users,email,' . $user['id'],
+            'address'     => 'required|max:200',
+            'city'        => 'required|max:120',
+            'postal_code' => 'nullable|max:20',
+        ];
+        $data = $this->validate(array_intersect_key($rules, $sent));
+        if (isset($data['email'])) {
+            $data['email'] = strtolower($data['email']);
+        }
+        if (array_key_exists('postal_code', $sent)) {
+            $data['postal_code'] = $data['postal_code'] ?? null;
+        }
+        if ($data) {
+            User::update((int) $user['id'], $data);
+        }
         Auth::refresh();
         $this->redirect('/mi-cuenta', 'Guardamos tus datos.');
     }
@@ -109,6 +149,6 @@ final class MemberController extends Controller
             }
         }
         MembershipService::stopRenewal((int) $membership['id']);
-        $this->redirect('/mi-cuenta', 'Listo, no se va a renovar. Seguís con acceso hasta el ' . fecha($membership['ends_at']) . '.');
+        $this->redirect('/mi-cuenta', 'Listo, cancelaste la renovación. Seguís con acceso hasta el ' . fecha($membership['ends_at']) . '.');
     }
 }

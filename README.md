@@ -69,10 +69,16 @@ Los webhooks y las URLs de retorno necesitan una URL pública con HTTPS (`APP_UR
 
 Programar una vez por día: `php bin/expire.php` (marca como vencidas las membresías terminadas).
 
+## Diseño
+
+- Las capturas de Figma están en `design/figma/` (no se suben a git). Las fotos del sitio salieron de ahí, en baja calidad: reemplazalas por los originales con el mismo nombre en `public/assets/img/fotos/` y `public/assets/img/libros/`.
+- Textos y fotos de cada sección de Contenidos: `config/sections.php`. Textos generales, testimonios, preguntas y redes: `config/site.php`.
+- Formato del texto de una entrega (admin → Contenidos): párrafos separados por una línea en blanco; `![epígrafe](fotos/archivo.jpg)` para imágenes (dos seguidas van lado a lado); `> cita` con `— Autora` abajo; `[para probar en casa]` y el texto abajo para el recuadro celeste; `@galeria título | fotos/a.jpg fotos/b.jpg` para la tira de fotos al pie.
+
 ## Pendiente
 
-- Ajustar pantallas al detalle de Figma (este front sigue la guía de diseño: paleta, tipografías, mapa del sitio e interacciones).
-- Subir fotos a `public/assets/img/fotos/` y el logo sintético para celular como `public/assets/img/logo-sintetico.svg`.
-- El logo original es `public/assets/img/logo.png`; el sitio usa las versiones livianas `logo-header.webp`, `logo-footer.webp` y `og-image.jpg` (redes sociales). Si cambia el logo, hay que regenerarlas.
-- Reemplazar textos provisorios: precios, consignas de runas, libros, bio de Sil, preguntas frecuentes.
-- Definir con Sil: qué secciones abre cada plan, dónde se alojan audios y grabaciones, recuperar contraseña por email, proveedor de email en producción.
+- Fotos originales en buena calidad (ver Diseño).
+- Textos "a confirmar con Silvina": entregas, sinopsis de libros, consignas de las runas.
+- Precios semestrales y en dólares (los mensuales y el anual son los de Figma).
+- Link del grupo de WhatsApp de la Cafetería y video de "¿Qué es la terapia ocupacional?" (`config/site.php`).
+- Recuperar contraseña por email (hoy el link lleva a WhatsApp) y proveedor de email en producción.

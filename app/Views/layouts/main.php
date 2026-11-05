@@ -1,7 +1,7 @@
 <?php
 /** @var string $content */
 $pageTitle = isset($title) && $title ? $title . ' · ' . config('app.name') : config('app.name') . ' · ' . config('site.tagline');
-$description = $description ?? 'Comunidad de escritura, lectura y encuentros con Silvina. ' . config('site.tagline');
+$description = $description ?? 'Una comunidad para crear, escribir y encontrarte con otros, a tu ritmo, con Silvina Oudshoorn.';
 ?>
 <!doctype html>
 <html lang="es-AR">
@@ -22,7 +22,7 @@ $description = $description ?? 'Comunidad de escritura, lectura y encuentros con
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&family=JetBrains+Mono:wght@500&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,700;1,6..12,400&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,600&family=JetBrains+Mono:wght@500&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;1,6..12,400&display=swap">
 
     <link rel="stylesheet" href="<?= asset('css/base.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/layout.css') ?>">
@@ -33,7 +33,7 @@ $description = $description ?? 'Comunidad de escritura, lectura y encuentros con
 <body class="<?= e($bodyClass ?? '') ?>">
     <a class="skip-link" href="#main">Saltar al contenido</a>
 
-    <?= partial('partials/header') ?>
+    <?= partial('partials/header', ['headerMode' => $headerMode ?? 'site']) ?>
 
     <main id="main">
         <?= $content ?>

@@ -6,6 +6,8 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Core\Database;
+use App\Core\Session;
 use App\Models\Entry;
 use App\Models\Rune;
 use App\Models\Section;
@@ -18,54 +20,80 @@ final class ContentController extends Controller
     /** B1 · Contenidos para vos */
     public function index(): void
     {
-        $user = Auth::user();
         $this->view('content/index', [
-            'title'  => 'Contenidos para vos',
-            'groups' => Section::grouped(),
-            'tiers'  => AccessService::tiersFor($user),
+            'title'     => 'Contenidos para vos',
+            'groups'    => Section::grouped(),
+            'tiers'     => AccessService::tiersFor(Auth::user()),
+            'fromPrice' => precio_desde(),
         ]);
     }
 
-    /** B2 · Una sección: la primera entrega es de muestra, las demás con candado si no hay acceso */
+    /** B2 · Una sección: la entrega de muestra se abre; las demás piden membresía */
     public function section(string $section): void
     {
         $sectionRow = Section::bySlug($section) ?? $this->abort(404);
-        if ($sectionRow['slug'] === 'runas-de-letras') {
-            $this->redirect('/contenidos/runas-de-letras');
-        }
-        $user = Auth::user();
         $this->view('content/section', [
             'title'     => $sectionRow['name'],
             'section'   => $sectionRow,
+            'cfg'       => config('sections.' . $sectionRow['slug'], []),
             'entries'   => Entry::forSection((int) $sectionRow['id']),
-            'hasAccess' => AccessService::canAccessSection($user, $sectionRow),
+            'hasAccess' => AccessService::canAccessSection(Auth::user(), $sectionRow),
             'groupName' => config('site.groups.' . $sectionRow['group_key']),
         ]);
     }
 
-    /** B5 · Vista de una entrega */
+    /** B5 · Una entrega. Sin acceso se ve el comienzo y el aviso para sumarse. */
     public function entry(string $section, string $entry): void
     {
         $sectionRow = Section::bySlug($section) ?? $this->abort(404);
         $entryRow = Entry::bySlug((int) $sectionRow['id'], $entry) ?? $this->abort(404);
         $user = Auth::user();
+        $hasAccess = AccessService::canAccessSection($user, $sectionRow);
 
-        if (!AccessService::canViewEntry($user, $sectionRow, $entryRow)) {
-            $this->redirect('/membresias', 'Esta entrega es para miembros. Elegí tu plan para leerla completa.');
-        }
-
-        $siblings = array_values(array_filter(
-            Entry::forSection((int) $sectionRow['id']),
-            fn (array $e) => (int) $e['id'] !== (int) $entryRow['id'],
-        ));
+        // Anterior / siguiente dentro de la sección (por fecha)
+        $siblings = Database::all(
+            'SELECT slug, title, published_at FROM entries WHERE section_id = ? AND is_published = 1 AND published_at <= ? ORDER BY published_at ASC, id ASC',
+            [$sectionRow['id'], now()],
+        );
+        $index = array_search($entryRow['slug'], array_column($siblings, 'slug'), true);
+        $prev = $index !== false && $index > 0 ? $siblings[$index - 1] : null;
+        $next = $index !== false && $index < count($siblings) - 1 ? $siblings[$index + 1] : null;
 
         $this->view('content/entry', [
             'title'     => $entryRow['title'],
             'section'   => $sectionRow,
             'entry'     => $entryRow,
-            'hasAccess' => AccessService::canAccessSection($user, $sectionRow),
-            'more'      => array_slice($siblings, 0, 3),
+            'cfg'       => config('sections.' . $sectionRow['slug'], []),
+            'hasAccess' => $hasAccess,
+            'canRead'   => AccessService::canViewEntry($user, $sectionRow, $entryRow),
+            'prev'      => $prev,
+            'next'      => $next,
+            'more'      => $this->moreForMonth((int) $sectionRow['id']),
         ]);
+    }
+
+    /** "Más para este mes": lo último de otras secciones, más la runa del día */
+    private function moreForMonth(int $exceptSectionId): array
+    {
+        $items = [];
+        foreach (['lugares', 'runas-de-letras', 'capituleando'] as $slug) {
+            $s = Section::bySlug($slug);
+            if (!$s || (int) $s['id'] === $exceptSectionId) {
+                continue;
+            }
+            if ($slug === 'runas-de-letras') {
+                $items[] = ['url' => '/contenidos/runas-de-letras', 'image' => 'fotos/runa-dibujo.jpg', 'kicker' => 'RUNAS DE LETRAS',
+                    'title' => 'Tu runa de hoy', 'text' => 'Sacá una runa y dejá que te inspire.', 'link' => 'Sacar una'];
+                continue;
+            }
+            $e = Entry::forSection((int) $s['id'])[0] ?? null;
+            if ($e) {
+                $items[] = ['url' => "/contenidos/{$slug}/{$e['slug']}", 'image' => $e['image'], 'kicker' => $s['name'],
+                    'title' => $slug === 'capituleando' ? 'Capítulo de regalo' : explode(',', $e['title'])[0],
+                    'text' => excerpt($e['excerpt'], 60), 'link' => $slug === 'capituleando' ? 'Descargar' : 'Leer'];
+            }
+        }
+        return $items;
     }
 
     /** "Agendar": descarga un .ics para agregar el encuentro al calendario */
@@ -101,31 +129,39 @@ final class ContentController extends Controller
         $section = Section::bySlug('runas-de-letras') ?? $this->abort(404);
         $user = Auth::user();
         $hasAccess = AccessService::canAccessSection($user, $section);
+        $today = $hasAccess && $user ? Rune::drawnToday((int) $user['id']) : null;
         $this->view('content/runes', [
             'title'     => 'Runas de Letras',
             'section'   => $section,
             'hasAccess' => $hasAccess,
-            'today'     => $hasAccess && $user ? Rune::drawnToday((int) $user['id']) : null,
+            'today'     => $today,
+            'giftUsed'  => (bool) Session::get('rune_gift'),
         ]);
     }
 
+    /** Miembros: una runa por día. Visitantes: la primera es de regalo (una por sesión). */
     public function drawRune(): void
     {
         $section = Section::bySlug('runas-de-letras') ?? $this->abort(404);
         $user = Auth::user();
-        if (!AccessService::canAccessSection($user, $section)) {
-            $this->json(['error' => 'Las runas son para miembros.'], 403);
+        $member = $user && AccessService::canAccessSection($user, $section);
+
+        if ($member) {
+            $rune = Rune::drawFor((int) $user['id']);
+        } elseif (Session::get('rune_gift')) {
+            $this->json(['error' => 'Tu runa de regalo ya salió. Sumate para sacar una cada día.'], 403);
+        } else {
+            $ids = Database::column('SELECT id FROM runes WHERE is_active = 1');
+            $rune = $ids ? Rune::find((int) $ids[random_int(0, count($ids) - 1)]) : null;
+            Session::put('rune_gift', true);
         }
-        $rune = Rune::drawFor((int) $user['id']);
-        if (!$rune) {
+        if (empty($rune)) {
             $this->json(['error' => 'Todavía no hay runas cargadas.'], 404);
         }
-        $this->json(['rune' => [
-            'symbol'  => $rune['symbol'],
-            'name'    => $rune['name'],
-            'meaning' => $rune['meaning'],
-            'prompt'  => $rune['prompt'],
-        ]]);
+        $this->json([
+            'gift' => !$member,
+            'rune' => ['symbol' => $rune['symbol'], 'name' => $rune['name'], 'meaning' => $rune['meaning'], 'prompt' => $rune['prompt']],
+        ]);
     }
 
     /** Regalo de Tecniquitas: se deja el email y llega el material */
@@ -135,12 +171,12 @@ final class ContentController extends Controller
         Subscriber::add($data['email'], 'tecniquitas');
         Mailer::send(
             $data['email'],
-            'Tu regalo de Tecniquitas',
-            "¡Hola!\n\nAcá tenés tu regalo: " . absolute_url('/contenidos/tecniquitas') . "\n\nQue lo disfrutes,\nSil",
+            'Tu Tecniquita de regalo',
+            "¡Hola!\n\nAcá tenés tu Tecniquita de regalo: " . absolute_url('/contenidos/tecniquitas') . "\n\nQue la disfrutes,\nSilvina",
         );
         if ($this->request->wantsJson()) {
             $this->json(['message' => '¡Listo! Revisá tu email.']);
         }
-        $this->redirect('/contenidos/tecniquitas', '¡Listo! Revisá tu email.');
+        $this->back('¡Listo! Revisá tu email.');
     }
 }

@@ -6,3 +6,5 @@
 .DS_Store
 .idea/
 /database/export/
+/design/figma/*.png
+/design/figma/*.jpg

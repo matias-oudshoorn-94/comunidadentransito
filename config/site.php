@@ -1,15 +1,16 @@
 <?php
 
 /*
- * Textos y fotos fijos del sitio. Las fotos van en public/assets/img/fotos/.
- * Si un archivo todavía no existe, se muestra una mancha de acuarela en su lugar.
+ * Textos fijos del sitio (de Figma). Las fotos están en public/assets/img/.
  */
 return [
-    'tagline' => 'Un lugar para crear, leer y encontrarnos sin apuro.',
+    'tagline' => 'Hacer cosas que te hacen bien.',
 
     'tiers' => [
-        'orilla'    => ['name' => 'Orilla',    'blurb' => 'Para asomarte a la comunidad y empezar a escribir.'],
-        'inmersion' => ['name' => 'Inmersión', 'blurb' => 'Todo lo que pasa en la comunidad, sin límites.'],
+        'orilla'    => ['name' => 'Orilla',    'blurb' => 'Para asomarte y probar.',
+                        'features' => ['Carta Slow Mood', 'Webinars', 'Cafetería en tránsito']],
+        'inmersion' => ['name' => 'Inmersión', 'blurb' => 'Toda la Comunidad, sin límites.',
+                        'features' => ['Todo lo de Orilla', 'Todos los contenidos', 'Capítulo de regalo', '25% en libros', 'Asesoramiento (a definir)']],
     ],
 
     'groups' => [
@@ -18,48 +19,39 @@ return [
         'encontrarnos' => 'Encontrarnos',
     ],
 
-    // Portada: 3 fotos de Sil con fundido suave
-    'hero_photos' => [
-        ['src' => 'fotos/sil-1.jpg', 'alt' => 'Silvina escribiendo junto a la ventana'],
-        ['src' => 'fotos/sil-2.jpg', 'alt' => 'Silvina leyendo frente al mar'],
-        ['src' => 'fotos/sil-3.jpg', 'alt' => 'Silvina en un encuentro de la comunidad'],
+    'social' => [
+        'whatsapp'        => '5492235936781',
+        'whatsapp_label'  => '223 593-6781',
+        'instagram'       => 'https://instagram.com/silvinaoudshoorn',
+        'instagram_label' => '@silvinaoudshoorn',
+        'facebook'        => 'https://facebook.com/silvinaouds',
+        'facebook_label'  => 'silvinaouds',
+        'email'           => 'hola@comunidadentransito.com',
+        // Link de invitación al grupo de WhatsApp de la Cafetería (solo se muestra a miembros)
+        'whatsapp_group'  => '',
     ],
 
-    // Tira de fotos de La Comunidad y Cafetería en tránsito
-    'strip_photos' => [
-        ['src' => 'fotos/comunidad-1.jpg', 'alt' => 'Encuentro de escritura'],
-        ['src' => 'fotos/comunidad-2.jpg', 'alt' => 'Cuadernos y café'],
-        ['src' => 'fotos/comunidad-3.jpg', 'alt' => 'Caminata por la costa'],
-        ['src' => 'fotos/comunidad-4.jpg', 'alt' => 'Lectura compartida'],
-        ['src' => 'fotos/comunidad-5.jpg', 'alt' => 'Taller de acuarela'],
-        ['src' => 'fotos/comunidad-6.jpg', 'alt' => 'Mate y libros'],
+    // Video "¿Qué es la terapia ocupacional?" (YouTube o Vimeo). Vacío: se muestra la foto.
+    'about_video' => '',
+
+    'testimonials' => [
+        ['Fuiste inspiración única y en el momento justo.', 'Agustina · terapista ocupacional'],
+        ['Tiene un apellido difícil, sonrisa fácil y da unos abrazos que abrazan.', 'Vivi · terapista ocupacional'],
+        ['Maravillosos libros llenos de amor, sabiduría y estrategias.', 'Lectora de sus libros'],
     ],
 
     'faq' => [
-        [
-            'q' => '¿Cómo es la comunidad?',
-            'a' => 'Es un espacio online para escribir, leer y compartir a tu ritmo. Cada semana hay contenidos nuevos y una vez por mes nos encontramos en vivo.',
-        ],
-        [
-            'q' => '¿Qué diferencia hay entre Orilla e Inmersión?',
-            'a' => 'Orilla te da acceso a las secciones para crear y escribir y a una parte de los materiales. Inmersión abre todo: grabaciones, encuentros, Slow Mood, Lugares y Dejando Huellas.',
-        ],
-        [
-            'q' => '¿Cómo pago?',
-            'a' => 'Podés pagar con Mercado Pago (en pesos, con renovación automática) o con PayPal (en dólares, desde cualquier país).',
-        ],
-        [
-            'q' => '¿Puedo darme de baja cuando quiera?',
-            'a' => 'Sí. Desde Mi cuenta cancelás la renovación con un clic y seguís teniendo acceso hasta el final del período que pagaste.',
-        ],
-        [
-            'q' => '¿Necesito saber escribir?',
-            'a' => 'Para nada. La comunidad es para cualquier persona con ganas de explorar la palabra, sin importar la experiencia.',
-        ],
+        ['q' => '¿Necesito saber de arte?', 'a' => 'Para nada. Las propuestas están pensadas para cualquier persona con ganas de crear, escribir o leer, sin experiencia previa.'],
+        ['q' => '¿Cómo pago?', 'a' => 'Con Mercado Pago, en pesos y con renovación automática. Si estás fuera de Argentina, podés pagar con PayPal.'],
+        ['q' => '¿Puedo cancelar cuando quiera?', 'a' => 'Sí. Desde Mi cuenta cancelás con un clic y seguís teniendo acceso hasta el final del período pagado.'],
+        ['q' => '¿A dónde llega la carta?', 'a' => 'La carta Slow Mood llega por correo a la dirección que cargás al sumarte. También queda guardada en la Comunidad.'],
+        ['q' => '¿Los encuentros quedan grabados?', 'a' => 'Sí. Cada encuentro por Zoom queda grabado en Materiales para ver, para que lo mires cuando quieras.'],
     ],
 
-    'social' => [
-        'instagram' => 'https://instagram.com/',
-        'email'     => 'hola@comunidadentransito.com',
+    'faq_payments' => [
+        ['q' => '¿Puedo cambiar de plan?', 'a' => 'Sí, cuando quieras desde Mi cuenta. El cambio se aplica en el próximo cobro.'],
+        ['q' => '¿Cómo cancelo?', 'a' => 'Desde Mi cuenta, con un clic. Seguís teniendo acceso hasta el final del período pagado.'],
+        ['q' => '¿Cuándo se cobra?', 'a' => 'El primer cobro es el día que te sumás; después se renueva automáticamente cada mes, semestre o año según el plan.'],
+        ['q' => '¿A dónde llega la carta?', 'a' => 'A la dirección que cargás al sumarte. La podés cambiar cuando quieras desde Mi cuenta.'],
     ],
 ];

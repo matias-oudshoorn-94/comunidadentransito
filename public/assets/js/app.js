@@ -120,8 +120,7 @@
         setTimeout(() => {
           $('[data-amount]', card).textContent = plan.amount;
           $('[data-per]', card).textContent = plan.per;
-          $('[data-usd]', card).textContent = plan.usd;
-          $('[data-note]', card).textContent = plan.note;
+          $('[data-renew]', card).textContent = plan.renew;
           $('[data-cta]', card).href = plan.url;
           card.classList.remove('is-switching');
         }, half);
@@ -138,12 +137,13 @@
   $$('[data-filters]').forEach((bar) => {
     const target = document.getElementById(bar.dataset.filters);
     if (!target) return;
+    const attr = bar.dataset.filterAttr || 'group';
     const buttons = $$('[data-filter]', bar);
     buttons.forEach((button) => button.addEventListener('click', () => {
       const value = button.dataset.filter;
       buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
-      $$('[data-group]', target).forEach((card) => {
-        const show = value === 'todo' || card.dataset.group === value;
+      $$('[data-' + attr + ']', target).forEach((card) => {
+        const show = value === 'todo' || card.dataset[attr] === value;
         card.classList.toggle('is-hidden', !show);
         card.classList.remove('is-entering');
         if (show) { void card.offsetWidth; card.classList.add('is-entering'); }
@@ -188,6 +188,8 @@
         $('[data-rune-name]', result).textContent = `${json.rune.name} · ${json.rune.meaning}`;
         $('[data-rune-prompt]', result).textContent = json.rune.prompt;
         deck.classList.add('is-done');
+        const hint = $('[data-rune-hint]');
+        if (hint) { hint.hidden = true; if (hint.nextElementSibling) hint.nextElementSibling.hidden = true; }
         result.classList.add('is-visible'); // la runa aparece de frente (0,55 s)
         result.focus();
       } catch (err) {
@@ -196,6 +198,34 @@
       }
     }));
   }
+
+  /* ---------- Reproductor de audio (episodios) ---------- */
+  $$('[data-audio]').forEach((box) => {
+    const audio = $('audio', box);
+    const button = $('[data-audio-toggle]', box);
+    if (!audio || !button) return;
+    const bar = $('[data-audio-bar]', box);
+    const time = $('[data-audio-time]', box);
+    const playIcon = button.innerHTML;
+    const pauseIcon = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>';
+    const fmt = (t) => Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0');
+    button.addEventListener('click', () => (audio.paused ? audio.play() : audio.pause()));
+    audio.addEventListener('play', () => { button.innerHTML = pauseIcon; button.setAttribute('aria-label', 'Pausar'); });
+    audio.addEventListener('pause', () => { button.innerHTML = playIcon; button.setAttribute('aria-label', 'Reproducir'); });
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      bar.style.width = (audio.currentTime / audio.duration) * 100 + '%';
+      time.textContent = fmt(audio.currentTime) + ' · ' + fmt(audio.duration);
+    });
+  });
+
+  /* ---------- Mi cuenta: "Editar" abre el campo en su lugar ---------- */
+  $$('[data-editable]').forEach((row) => {
+    $$('[data-edit-toggle]', row).forEach((b) => b.addEventListener('click', () => {
+      row.classList.toggle('is-editing');
+      if (row.classList.contains('is-editing')) $('input:not([type=hidden])', row)?.focus();
+    }));
+  });
 
   /* ---------- Formularios que confirman sin recargar (regalo de Tecniquitas) ---------- */
   $$('form[data-ajax]').forEach((form) => {

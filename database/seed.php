@@ -9,12 +9,10 @@ use App\Models\User;
 use App\Services\MembershipService;
 
 /**
- * Datos base. Los precios, textos de secciones, consignas de runas y libros son
- * provisorios: hay que reemplazarlos por los definitivos (desde el admin o acá).
+ * Datos base, con los textos de Figma. Los que dicen "a confirmar" los completa Silvina desde el admin.
  */
 function seed_base(): void
 {
-    // Cuenta admin
     $email = strtolower((string) env('ADMIN_EMAIL', 'admin@comunidadentransito.local'));
     if (!User::findByEmail($email)) {
         User::create([
@@ -26,12 +24,14 @@ function seed_base(): void
         echo "  Admin: {$email}\n";
     }
 
-    // Planes (precios provisorios)
+    // Precios de Figma (mensual). Anual = 10 meses ("2 meses de regalo"). Semestral y dólares: provisorios.
     $plans = [
-        ['orilla-mensual',      'Orilla mensual',      'orilla',    'mensual',   1,  9000,   9,   'Para asomarte a la comunidad: crear, escribir y leer.', 1],
-        ['inmersion-mensual',   'Inmersión mensual',   'inmersion', 'mensual',   1,  18000,  18,  'Todo lo que pasa en la comunidad, mes a mes.', 2],
-        ['inmersion-semestral', 'Inmersión semestral', 'inmersion', 'semestral', 6,  97200,  97,  'Seis meses de comunidad con 10% de descuento.', 3],
-        ['inmersion-anual',     'Inmersión anual',     'inmersion', 'anual',     12, 172800, 173, 'Un año entero con 20% de descuento.', 4],
+        ['orilla-mensual',      'Orilla mensual',      'orilla',    'mensual',   1,  19999,  20,  'Para asomarte y probar.', 1],
+        ['orilla-semestral',    'Orilla semestral',    'orilla',    'semestral', 6,  107990, 108, 'Para asomarte y probar.', 2],
+        ['orilla-anual',        'Orilla anual',        'orilla',    'anual',     12, 199990, 200, 'Para asomarte y probar.', 3],
+        ['inmersion-mensual',   'Inmersión mensual',   'inmersion', 'mensual',   1,  39990,  40,  'Toda la Comunidad, sin límites.', 4],
+        ['inmersion-semestral', 'Inmersión semestral', 'inmersion', 'semestral', 6,  215940, 216, 'Toda la Comunidad, sin límites.', 5],
+        ['inmersion-anual',     'Inmersión anual',     'inmersion', 'anual',     12, 399900, 400, 'Toda la Comunidad, sin límites.', 6],
     ];
     foreach ($plans as [$slug, $name, $tier, $period, $months, $ars, $usd, $description, $sort]) {
         if (!Plan::findBy('slug', $slug)) {
@@ -39,88 +39,207 @@ function seed_base(): void
         }
     }
 
-    // Secciones de Contenidos para vos, con qué nivel las abre
+    // Orilla: Carta Slow Mood, Webinars (encuentros), Cafetería y algunos contenidos. Inmersión: todo.
     $both = ['orilla', 'inmersion'];
     $deep = ['inmersion'];
     $sections = [
-        ['pispeando-arte', 'Pispeando Arte', 'crear', 'MIRAR PARA ESCRIBIR', 'eye', 0, $both,
-            'Obras, artistas y rincones del arte para mirar con calma y dejar que despierten la escritura.'],
-        ['tecniquitas', 'Tecniquitas', 'crear', 'HERRAMIENTAS', 'pen', 0, $both,
-            'Pequeñas técnicas de escritura, una por vez, para practicar sin presión.'],
-        ['runas-de-letras', 'Runas de Letras', 'crear', 'UNA CONSIGNA POR DÍA', 'sparkle', 0, $both,
-            'Sacá una runa y dejate llevar por la consigna que trae. Una nueva cada día.'],
-        ['materiales-para-leer', 'Materiales para leer', 'leer', 'LECTURAS', 'book', 0, $both,
-            'Cuentos, poemas y fragmentos elegidos para leer despacio, con descarga en PDF.'],
-        ['capituleando', 'Capituleando', 'leer', 'NOVELA POR ENTREGAS', 'layers', 0, $deep,
-            'Una historia que se escribe capítulo a capítulo, en compañía.'],
-        ['materiales-para-escuchar', 'Materiales para escuchar', 'leer', 'CHIRIMBITAS', 'headphones', 0, $deep,
-            'Episodios breves para escuchar mientras caminás, cocinás o simplemente descansás.'],
-        ['materiales-para-ver', 'Materiales para ver', 'leer', 'GRABACIONES', 'play', 0, $deep,
-            'Las grabaciones de nuestros encuentros por Zoom y otros videos para ver cuando quieras.'],
-        ['cafeteria-en-transito', 'Cafetería en tránsito', 'encontrarnos', 'ENCUENTROS EN VIVO', 'cup', 0, $deep,
-            'Nuestra mesa compartida: encuentros en vivo para leernos y conversar.'],
-        ['slow-mood', 'Slow Mood', 'encontrarnos', 'CARTAS SIN APURO', 'leaf', 1, $deep,
-            'Cartas para bajar el ritmo y volver a lo simple.'],
-        ['lugares', 'Lugares', 'encontrarnos', 'RELATOS DE VIAJE', 'pin', 1, $deep,
-            'Rincones del mundo contados desde adentro, para viajar con las palabras.'],
-        ['dejando-huellas', 'Dejando Huellas', 'encontrarnos', 'RELATOS DE LA COMUNIDAD', 'footprint', 1, $deep,
-            'Historias de quienes forman parte de la comunidad y las huellas que van dejando.'],
+        ['pispeando-arte', 'Pispeando Arte', 'crear', 'CREAR', 'eye', $deep,
+            'Los cuadros de Silvina y, cada mes, una artista invitada. Para mirar despacio, como en una muestra.'],
+        ['tecniquitas', 'Tecniquitas', 'crear', 'CREAR', 'pen', $both,
+            'Diferentes técnicas y propuestas de actividades breves para que puedas experimentar en tus tiempos y con tus ganas: técnicas plásticas, corporales y de autoexpresión.'],
+        ['runas-de-letras', 'Runas de Letras', 'crear', 'RUNAS DE LETRAS · LA CÁPSULA DEL ESCRITOR', 'sparkle', $both,
+            'Un mazo de naipes para inspirar tu escritura. Sacá una o más por día y dejá que te hablen: las runas funcionan con la intuición y muestran lo que ya sabés, pero necesitás escuchar.'],
+        ['materiales-para-leer', 'Materiales para leer', 'leer', 'LEER', 'book', $deep,
+            'Para ir armando una biblioteca o reservorio sobre autocuidados, espiritualidad, cuidados paliativos, teorías y evidencia, artículos interesantes.'],
+        ['capituleando', 'Capituleando', 'leer', 'LEER', 'layers', $deep,
+            'Cada mes, un capítulo de uno de los libros de Silvina, para leer a tu ritmo.'],
+        ['materiales-para-escuchar', 'Materiales para escuchar', 'leer', 'ESCUCHAR', 'headphones', $deep,
+            'Chirimbitas, el ciclo de podcast de Silvina: pequeñas historias para el oído, con el objetivo de conectar y empatizar. Chispas de inspiración.'],
+        ['materiales-para-ver', 'Materiales para ver', 'leer', 'VER', 'play', $both,
+            'Un encuentro por Zoom cada mes, en vivo o grabado, sobre diferentes temáticas motivadoras. Y una selección de videos de otros autores que a Silvina le resultaron interesantes.'],
+        ['cafeteria-en-transito', 'Cafetería en tránsito', 'encontrarnos', 'ENCONTRARNOS', 'cup', $both,
+            'Tenemos un lugarcito hermoso al que vas a poder acceder cada vez que quieras, al alcance de tu mano: la Cafetería en tránsito, ubicada en tu WhatsApp.'],
+        ['slow-mood', 'Slow Mood', 'encontrarnos', 'ENCONTRARNOS', 'mail', $both,
+            'Una carta escrita por Silvina, cada mes, para leer con calma.'],
+        ['lugares', 'Lugares', 'encontrarnos', 'ENCONTRARNOS', 'pin', $deep,
+            'Viajar es un tránsito que va mucho más allá de la geografía cercana o lejana que podamos recorrer. Relatos de viajes, con lugares y descubrimientos a partir de la emoción.'],
+        ['dejando-huellas', 'Dejando Huellas', 'encontrarnos', 'ENCONTRARNOS', 'footprint', $deep,
+            'Ejemplos de personas que con sus hechos han dejado huella, actuales o históricas, en un relato coloquial y cercano. Cada mes agrego un relato de Huellas: arte, pasión, viajes, salud, desafíos, aventura, animarse a…'],
     ];
-    foreach ($sections as $sort => [$slug, $name, $group, $kicker, $icon, $animated, $tiers, $intro]) {
+    foreach ($sections as $sort => [$slug, $name, $group, $kicker, $icon, $tiers, $intro]) {
         if (Section::findBy('slug', $slug)) {
             continue;
         }
         $id = Section::create([
             'slug' => $slug, 'name' => $name, 'group_key' => $group, 'kicker' => $kicker,
-            'icon' => $icon, 'animated_header' => $animated, 'intro' => $intro, 'sort' => $sort,
+            'icon' => $icon, 'animated_header' => in_array($slug, ['slow-mood', 'lugares', 'dejando-huellas'], true) ? 1 : 0,
+            'intro' => $intro, 'sort' => $sort,
         ]);
         Section::setTiers($id, $tiers);
-        seed_entries($id, $slug);
+        foreach (seed_entries_for($slug) as $i => $entry) {
+            seed_entry($id, $entry, $i);
+        }
     }
 
     seed_runes();
     seed_books();
 }
 
-function seed_entries(int $sectionId, string $sectionSlug): void
+/** Inserta una entrega. Fecha: el mes del antetítulo (octubre 2026 hacia atrás). */
+function seed_entry(int $sectionId, array $e, int $i): void
 {
-    $body = "Este es un texto de ejemplo para ver cómo se lee una entrega completa. Sil va a reemplazarlo desde el panel de administración.\n\n"
-        . "Escribir es, muchas veces, animarse a mirar dos veces lo mismo. La segunda mirada siempre trae algo que la primera dejó pasar: un color, una palabra, un silencio.\n\n"
-        . "Te propongo que leas despacio, que subrayes lo que te resuene y que, si tenés ganas, escribas unas líneas al terminar.";
-
-    $byKind = [
-        'pispeando-arte'           => ['lectura',   ['Los azules de Hokusai', 'Una tarde con Frida', 'Lo que guardan las naturalezas muertas']],
-        'tecniquitas'              => ['lectura',   ['Escribir con los cinco sentidos', 'El objeto que cuenta una historia', 'Diálogos que respiran']],
-        'materiales-para-leer'     => ['lectura',   ['Cuentos de orilla', 'Poemas para la mañana', 'Fragmentos de mar']],
-        'capituleando'             => ['lectura',   ['Capítulo 1 · La llegada', 'Capítulo 2 · El faro', 'Capítulo 3 · Marea baja']],
-        'materiales-para-escuchar' => ['episodio',  ['Chirimbitas · Episodio 1', 'Chirimbitas · Episodio 2', 'Chirimbitas · Episodio 3']],
-        'materiales-para-ver'      => ['grabacion', ['Encuentro de octubre', 'Encuentro de septiembre', 'Taller de cartas']],
-        'cafeteria-en-transito'    => ['encuentro', ['Café de noviembre', 'Café de diciembre', 'Café de verano']],
-        'slow-mood'                => ['carta',     ['Carta para un domingo lento', 'Carta sobre el silencio', 'Carta de las pequeñas cosas']],
-        'lugares'                  => ['relato',    ['Mar del Plata en invierno', 'Un pueblo de la Patagonia', 'Las sierras al amanecer']],
-        'dejando-huellas'          => ['relato',    ['El relato de Mainumbí', 'Volver a escribir a los sesenta', 'Cuadernos que viajan']],
-        'runas-de-letras'          => ['lectura',   []],
-    ];
-    [$kind, $titles] = $byKind[$sectionSlug];
-
-    foreach ($titles as $i => $title) {
-        $published = date('Y-m-d H:i:s', strtotime("-{$i} weeks"));
-        Database::insert('entries', [
-            'section_id'   => $sectionId,
-            'slug'         => slugify($title),
-            'title'        => $title,
-            'kind'         => $kind,
-            'excerpt'      => 'Un adelanto breve de la entrega, para que sepas de qué se trata antes de abrirla.',
-            'body'         => $body,
-            'media_url'    => null,
-            'event_at'     => $kind === 'encuentro' ? date('Y-m-d 19:00:00', strtotime('+' . (($i + 1) * 3) . ' weeks')) : null,
-            'is_preview'   => $i === 0 ? 1 : 0,
-            'is_published' => 1,
-            'published_at' => $published,
-            'created_at'   => $published,
-            'updated_at'   => $published,
-        ]);
+    static $slugs = [];
+    $base = slugify($e['title']);
+    $slug = $base;
+    $n = 2;
+    while (isset($slugs[$sectionId][$slug])) {
+        $slug = $base . '-' . $n++;
     }
+    $slugs[$sectionId][$slug] = true;
+
+    $published = $e['published_at'] ?? date('Y-m-d 10:00:00', strtotime("2026-10-01 -{$i} months"));
+    Database::insert('entries', [
+        'section_id'    => $sectionId,
+        'slug'          => $slug,
+        'title'         => $e['title'],
+        'kind'          => $e['kind'] ?? 'lectura',
+        'kicker'        => $e['kicker'] ?? null,
+        'meta'          => $e['meta'] ?? null,
+        'hand_note'     => $e['hand_note'] ?? null,
+        'category'      => $e['category'] ?? null,
+        'label'         => $e['label'] ?? null,
+        'image'         => $e['image'] ?? null,
+        'image_caption' => $e['image_caption'] ?? null,
+        'excerpt'       => $e['excerpt'] ?? null,
+        'body'          => $e['body'] ?? null,
+        'media_url'     => $e['media_url'] ?? null,
+        'event_at'      => $e['event_at'] ?? null,
+        'is_preview'    => (int) ($e['preview'] ?? 0),
+        'is_published'  => 1,
+        'published_at'  => $published,
+        'created_at'    => $published,
+        'updated_at'    => $published,
+    ]);
+}
+
+function seed_entries_for(string $slug): array
+{
+    $tbc = 'Título a confirmar con Silvina';
+    $leer = "Porque la experiencia es fáctica, es algo que sucede, real; con la práctica, la reiteración, logramos domarla y domesticarla, organizando su ritmo, determinando sus pasos, un ordenamiento o secuencia; un conocimiento mutuo entre el que lo hace y esa actividad en particular.\n\n"
+        . "Sencillamente, pasa de ser una experiencia desbocada a constituir una técnica consumada, con melodía y armonía en sus pasos.\n\n"
+        . "Y cuando la técnica se incorpora (ya no es sólo una práctica de la experimentación inicial), cuando se vivencia y se afianza, es el instante en el que se convierte en destreza, la cual con el tiempo, nos libera.";
+
+    return match ($slug) {
+        'pispeando-arte' => [
+            [
+                'title' => 'La artista del mes: Dolores Mendieta', 'kicker' => 'PISPEANDO ARTE · OCTUBRE 2026',
+                'meta' => 'por Silvina Oudshoorn · 6 min de lectura', 'hand_note' => 'Artista invitada',
+                'image' => 'fotos/magnolia.jpg', 'image_caption' => 'El atelier de Dolores en San Javier, Córdoba',
+                'excerpt' => 'Su atelier en San Javier, Córdoba. Un recorrido por su espacio de trabajo, sus materiales y lo que la inspira.',
+                'body' => "Conocí su obra en un viaje con amigas a San Javier, Córdoba, donde visitamos su atelier. Entre telas, frascos con pinceles y una ventana que da a las sierras, Dolores nos mostró cómo trabaja.\n\n"
+                    . "Dolores nace en Buenos Aires en 1977. Es licenciada en Artes Visuales y trabaja con acuarela y tinta sobre papel. Sus obras hablan del paisaje y de lo que queda cuando una se detiene a mirar.\n\n"
+                    . "![Obra de la artista](fotos/mesa-acuarelas.jpg)\n![Obra de la artista](fotos/runa-dibujo.jpg)\n\n"
+                    . "> Pintar es una forma de quedarse un rato más en un lugar.\n— Dolores Mendieta\n\n"
+                    . "Texto de la entrega a cargo de Silvina: lo que le provocó su obra, una pregunta para quien lee y una invitación a probar algo parecido en casa.\n\n"
+                    . "[para probar en casa]\nElegí una ventana de tu casa y pintá lo que ves en 15 minutos, sin borrar.",
+            ],
+            ['title' => 'Acuarelas del mar', 'kicker' => 'PISPEANDO ARTE · SEPTIEMBRE 2026', 'image' => 'fotos/mesa-acuarelas.jpg',
+                'excerpt' => 'Cuadros de Silvina sobre Mar del Plata.', 'meta' => 'por Silvina Oudshoorn', 'body' => 'Texto a confirmar con Silvina.'],
+            ['title' => 'Entrega anterior', 'kicker' => 'PISPEANDO ARTE · AGOSTO 2026', 'image' => 'fotos/runa-dibujo.jpg',
+                'excerpt' => 'Título a confirmar.', 'meta' => 'por Silvina Oudshoorn', 'body' => 'Texto a confirmar con Silvina.'],
+        ],
+        'tecniquitas' => [
+            ['title' => 'Tu color', 'kicker' => 'OCTUBRE 2026 · LÁMINA', 'image' => 'fotos/cafe-taza.jpg',
+                'excerpt' => 'Elegí un color que te guste y animate a completar sus características: qué figura sería, qué sabor tendría, con qué emoción lo asociás… y escribile un poema de cuatro líneas.',
+                'meta' => 'Una Tecniquita de Silvina · lámina para imprimir',
+                'body' => "Elegí un color que te guste y animate a completar sus características: qué figura sería, qué sabor tendría, con qué emoción lo asociás.\n\nDespués, escribile un poema de cuatro líneas."],
+        ],
+        'runas-de-letras' => [],
+        'materiales-para-leer' => [
+            ['title' => $tbc, 'kicker' => 'ARTÍCULO · AUTOCUIDADOS', 'category' => 'autocuidados', 'label' => 'autocuidados', 'preview' => 1,
+                'excerpt' => 'Autor o fuente · a confirmar', 'meta' => 'Autor o fuente · a confirmar · 3 minutos de lectura',
+                'hand_note' => 'texto de ejemplo: acá va la lectura que elija Silvina', 'body' => $leer, 'published_at' => '2026-10-01 10:00:00'],
+            ['title' => $tbc, 'kicker' => 'LECTURA · ESPIRITUALIDAD', 'category' => 'espiritualidad', 'label' => 'espiritualidad',
+                'excerpt' => 'Autor o fuente · a confirmar', 'meta' => 'Autor o fuente · a confirmar', 'body' => $leer, 'published_at' => '2026-09-20 10:00:00'],
+            ['title' => $tbc, 'kicker' => 'ARTÍCULO · TEORÍAS Y EVIDENCIA', 'category' => 'teorias-y-evidencia', 'label' => 'teorías y evidencia',
+                'excerpt' => 'Autor o fuente · a confirmar', 'meta' => 'Autor o fuente · a confirmar', 'body' => $leer, 'published_at' => '2026-09-10 10:00:00'],
+        ],
+        'capituleando' => [
+            ['title' => 'Habitante de la Vida', 'kicker' => 'OCTUBRE 2026 · ESTE MES', 'image' => 'libros/habitante-de-la-vida.jpg', 'preview' => 1,
+                'excerpt' => 'Un capítulo del libro que completa la trilogía de En la Cornisa de la Vida.', 'meta' => 'Un capítulo de regalo · PDF para leer o imprimir',
+                'body' => 'Un capítulo del libro que completa la trilogía de En la Cornisa de la Vida.'],
+            ['title' => 'Apasionadamente', 'kicker' => 'SEPTIEMBRE 2026', 'image' => 'libros/apasionadamente.jpg',
+                'excerpt' => 'Un capítulo de Apasionadamente · Un estilo de vida.', 'body' => 'Un capítulo de Apasionadamente.'],
+            ['title' => 'El Secreto de la Nuez', 'kicker' => 'AGOSTO 2026', 'image' => 'libros/el-secreto-de-la-nuez.jpg',
+                'excerpt' => 'Un capítulo de El Secreto de la Nuez.', 'body' => 'Un capítulo de El Secreto de la Nuez.'],
+        ],
+        'materiales-para-escuchar' => array_map(fn (int $n) => [
+            'title' => $tbc, 'kind' => 'episodio', 'kicker' => "PODCAST · CHIRIMBITAS · EPISODIO {$n}", 'label' => 'chirimbitas',
+            'preview' => $n === 1 ? 1 : 0, 'excerpt' => 'Duración a confirmar', 'meta' => 'Silvina Oudshoorn · duración a confirmar',
+            'hand_note' => 'ejemplo: acá va el episodio que suba Silvina',
+            'body' => 'Chirimbitas: pequeñas historias para el oído con el objetivo fundamental de conectar y empatizar, chispas de inspiración.',
+        ], [1, 2, 3]),
+        'materiales-para-ver' => [
+            ...array_map(fn (array $m) => [
+                'title' => 'Tema a confirmar con Silvina', 'kind' => 'grabacion', 'category' => 'encuentro', 'label' => 'encuentro',
+                'kicker' => "ZOOM · {$m[0]} 2026 · GRABADO", 'preview' => $m[1], 'excerpt' => 'Grabado · duración a confirmar',
+                'meta' => 'Encuentro mensual por Zoom · duración a confirmar', 'hand_note' => 'ejemplo: acá va la grabación del encuentro',
+                'body' => 'Te invito a participar de un encuentro por zoom mensual, sincrónico (o queda grabado) en el que iremos abordando diferentes temáticas motivadoras.',
+                'published_at' => $m[2],
+            ], [['OCTUBRE', 1, '2026-10-01 10:00:00'], ['SEPTIEMBRE', 0, '2026-09-01 10:00:00'], ['AGOSTO', 0, '2026-08-01 10:00:00']]),
+            ...array_map(fn (array $v) => [
+                'title' => $v[0], 'kind' => 'grabacion', 'category' => 'video', 'label' => 'video recomendado',
+                'kicker' => 'VIDEO · ' . upper($v[1]), 'excerpt' => $v[1], 'meta' => $v[1], 'body' => 'Un video recomendado por Silvina.',
+                'published_at' => $v[2],
+            ], [
+                ['La felicidad es una elección: así puedes empezar hoy', 'Mario Alonso Puig', '2026-10-05 10:00:00'],
+                ['Felicidad y propósito de vida', 'Pablo Gómez Psiquiatra', '2026-09-05 10:00:00'],
+                ['Gestión del estrés y el aburrimiento', 'Marian Rojas Estapé', '2026-08-05 10:00:00'],
+                ['Hablando de TO #29 · La muerte como parte de la vida', 'Silvina Oudshoorn', '2026-07-05 10:00:00'],
+            ]),
+        ],
+        'cafeteria-en-transito' => [
+            ['title' => 'La Cafetería, en tu WhatsApp', 'kicker' => 'GRUPO DE WHATSAPP', 'image' => 'fotos/cafe-taza.jpg', 'preview' => 1,
+                'excerpt' => 'Charlas e intercambio cercano y permanente.', 'meta' => 'El grupo de WhatsApp de la Comunidad',
+                'body' => 'Ni bien ingreses a la Comunidad en Tránsito, te sumamos al grupo de WhatsApp para favorecer el contacto e intercambio cercano y permanente.'],
+            ['title' => 'Te sumamos al grupo', 'kicker' => 'AL SUMARTE', 'image' => 'fotos/collage-cafes.jpg',
+                'excerpt' => 'Ni bien ingresás a la Comunidad, te sumamos al grupo de WhatsApp.', 'body' => 'Ni bien ingresás a la Comunidad, te sumamos al grupo de WhatsApp.'],
+            ['title' => 'Próximo cafecito', 'kind' => 'encuentro', 'kicker' => 'EN WHATSAPP', 'image' => 'fotos/comedor.jpg',
+                'excerpt' => 'Tema a confirmar con Silvina.', 'body' => 'Tema a confirmar con Silvina.'],
+        ],
+        'slow-mood' => array_map(fn (array $m) => [
+            'title' => "Carta de {$m[0]}", 'kind' => 'carta', 'kicker' => 'SLOW MOOD · ' . upper($m[0]) . ' 2026', 'label' => "carta de {$m[0]}",
+            'preview' => $m[1], 'excerpt' => 'Tema a confirmar con Silvina.', 'meta' => 'Una carta de Silvina · llega a tu casa y queda guardada acá',
+            'hand_note' => 'texto de ejemplo: acá va la carta de cada mes',
+            'body' => '¿Querés un cafecito? Tenemos un lugarcito hermoso al que vas a poder acceder cada vez que quieras, al alcance de tu mano.',
+        ], [['octubre', 1], ['septiembre', 0], ['agosto', 0]]),
+        'lugares' => [
+            [
+                'title' => 'Mainumbí, pradera naturalizada', 'kind' => 'relato', 'kicker' => 'LUGARES · ENTREGA DEL MES · OCTUBRE 2026',
+                'image' => 'fotos/mainumbi-1.jpg', 'preview' => 1, 'meta' => 'Un relato de Silvina · 6 minutos de lectura',
+                'excerpt' => 'Un campo de flores en la provincia de Buenos Aires.',
+                'body' => "Hace unos años encontré buceando por internet un campo de flores en la provincia de Buenos Aires, que se llama Mainumbí. Originalmente fueron los campos de la familia Mulcahy, cuyo hermoso jardín estilo inglés se destacaba entre todos los otros. Sin embargo, decidieron darle a Mainumbí la oportunidad de volver a alojar a los polinizadores originales reinsertando lentamente la flora autóctona local. Así, el prolijo césped transmutó y dio paso a hermosas praderas naturalizadas plenas de vida; retornaron miles de aves silvestres e insectos… ¡y qué decirles de las mariposas!\n\n"
+                    . "Cuando vi las fotos del lugar sentí la imperiosa necesidad de buscar la forma de poder conocerlo, recorrer, tomar mi tiempo, escribir, pintar y soñar en ese campo de flores. Muy decidida, armé un bolso pequeño con lo indispensable para tres o cuatro días y otro con varios libros, un cuaderno en blanco, lápices, pinceles, papel de pintura y acuarelas.\n\n"
+                    . "![](fotos/papeles-pasto.jpg)\n\n"
+                    . "Los invito a imaginar esas tardecitas calurosas bajo las frondosas copas de árboles antiguos. Pastizales ondulados por el viento y salpicados de pequeñas flores que brillan como joyas; senderos estrechos entre las matas y macizos de colores que conducen a nuevos paisajes; un arroyo que nutre el estanque del que Monet no se hubiera despegado sin antes pintar unas quinientas obras; un arco de rosas que enmarca la entrada a un huerto lleno de magia…\n\n"
+                    . "Una mañana, después de tomar un desayuno casero, me fui a leer bajo una enorme magnolia. Estaba cargada de flores y su fragancia se hacía hasta empalagosa por su intensidad. No me podía concentrar y dejé que mi mente se fuera a vagabundear; en un instante me encontré afirmando en silencio “si alguna vez me vuelvo a casar, mi ramo va a ser de magnolias”.\n\n"
+                    . "Los días que estuve en Mainumbí pasaron volando. Lo que sí puedo asegurar es que mi tránsito por el campo de flores fue una experiencia especial, que atesoraré toda la vida. Se trata de cerrar etapas, de cumplir sueños, de arriesgarse a que suceda.\n\n"
+                    . "¿Se acuerdan lo que les conté sobre la magnolia? Bueno… tres años más tarde conocí al amor de mi vida ¡y nos casamos!\n\n"
+                    . "@galeria explorá las imágenes de este maravilloso lugar | fotos/mainumbi-1.jpg fotos/mainumbi-2.jpg fotos/mainumbi-3.jpg fotos/mainumbi-4.jpg fotos/mainumbi-5.jpg fotos/flores-lilas.jpg",
+            ],
+            ['title' => 'Lugar a confirmar con Silvina', 'kind' => 'relato', 'kicker' => 'NOVIEMBRE 2026', 'label' => 'próximo lugar',
+                'excerpt' => 'Muy pronto.', 'body' => 'Muy pronto.', 'published_at' => '2026-09-01 10:00:00'],
+            ['title' => 'Lugar a confirmar con Silvina', 'kind' => 'relato', 'kicker' => 'DICIEMBRE 2026', 'label' => 'otro lugar',
+                'excerpt' => 'Muy pronto.', 'body' => 'Muy pronto.', 'published_at' => '2026-08-01 10:00:00'],
+        ],
+        'dejando-huellas' => array_map(fn (array $m) => [
+            'title' => 'Relato a confirmar con Silvina', 'kind' => 'relato', 'kicker' => 'DEJANDO HUELLAS · ' . upper($m[0]) . ' 2026',
+            'label' => 'huellas', 'preview' => $m[1], 'excerpt' => $m[2], 'meta' => 'Un relato de Silvina · duración a confirmar',
+            'hand_note' => 'texto de ejemplo: acá va el relato del mes',
+            'body' => 'Esta sección presenta ejemplos de personas que con sus hechos han dejado huella, actuales o históricas, llevados en relato coloquial y cercano. Que remitan a las experiencias, que puedan ser replicadas, sentidas por ellos.',
+        ], [['octubre', 1, 'Arte, pasión, viajes, salud, desafíos…'], ['septiembre', 0, 'Tema a confirmar.'], ['agosto', 0, 'Tema a confirmar.']]),
+        default => [],
+    };
 }
 
 function seed_runes(): void
@@ -128,7 +247,7 @@ function seed_runes(): void
     if ((int) Database::value('SELECT COUNT(*) FROM runes') > 0) {
         return;
     }
-    // Consignas provisorias: el banco definitivo lo escribe Sil.
+    // Consignas provisorias: el mazo definitivo lo escribe Silvina.
     $runes = [
         ['ᚠ', 'Fehu', 'Abundancia', 'Escribí sobre algo que tenés en abundancia y que casi nunca nombrás.'],
         ['ᚢ', 'Uruz', 'Fuerza', 'Contá un momento en que descubriste una fuerza que no sabías que tenías.'],
@@ -165,18 +284,23 @@ function seed_books(): void
     if ((int) Database::value('SELECT COUNT(*) FROM books') > 0) {
         return;
     }
-    // Fichas provisorias: completar con los libros reales de Silvina.
     $books = [
-        ['Título del primer libro', 'Novela', 2019],
-        ['Título del segundo libro', 'Cuentos', 2021],
-        ['Título del tercer libro', 'Cuaderno de escritura', 2024],
+        ['El Secreto de la Nuez', 'Ayuditas para decir y acompañar', 2025, 'Ed. Silvina Oudshoorn · Mar del Plata', 15000, 1, 0],
+        ['Habitante de la Vida', 'Y después de la cornisa ¿qué?', 2025, 'Ed. Silvina Oudshoorn · Mar del Plata', 30000, 1, 0],
+        ['Apasionadamente', 'Un estilo de vida', 2022, 'Ed. Dunken · Buenos Aires', 40000, 0, 0],
+        ['Las otras cornisas de la terapia ocupacional', null, 2018, 'Ed. M.B · Miramar', 40000, 0, 0],
+        ['A tu lado en la Cornisa de la Vida', 'Interdisciplina y acompañamiento', 2016, 'Ed. Martín · Mar del Plata', 30000, 0, 0],
+        ['En la Cornisa de la Vida', 'Intervenciones desde Terapia Ocupacional', 2015, 'Ed. Martín · Mar del Plata', null, 0, 1],
+        ['El niño con cáncer, su familia y la comunidad', null, 2007, 'Ed. Martín · Mar del Plata', 30000, 0, 0],
     ];
-    foreach ($books as $i => [$title, $subtitle, $year]) {
+    $covers = ['el-secreto-de-la-nuez', 'habitante-de-la-vida', 'apasionadamente', 'las-otras-cornisas', 'a-tu-lado-en-la-cornisa', 'en-la-cornisa-de-la-vida', 'el-nino-con-cancer'];
+    foreach ($books as $i => [$title, $subtitle, $year, $publisher, $price, $new, $soldOut]) {
         Database::insert('books', [
             'slug' => slugify($title), 'title' => $title, 'subtitle' => $subtitle, 'year' => $year,
-            'publisher' => 'Editorial', 'pages' => 120 + $i * 40,
-            'synopsis' => 'Sinopsis provisoria. Acá va la ficha del libro: de qué trata, para quién es y dónde conseguirlo.',
-            'buy_url' => null, 'sort' => $i, 'created_at' => now(), 'updated_at' => now(),
+            'publisher' => $publisher, 'price' => $price, 'is_new' => $new, 'sold_out' => $soldOut,
+            'cover' => 'libros/' . $covers[$i] . '.jpg',
+            'synopsis' => 'Sinopsis a confirmar con Silvina.', 'buy_url' => null, 'sort' => $i,
+            'created_at' => now(), 'updated_at' => now(),
         ]);
     }
 }
@@ -185,13 +309,13 @@ function seed_books(): void
 function seed_demo(): void
 {
     $people = [
+        ['Juana Pérez', 'inmersion-mensual', -24, 'mercadopago'],
         ['Lucía Fernández', 'inmersion-anual', -200, 'mercadopago'],
         ['Andrés Gómez', 'orilla-mensual', -25, 'mercadopago'],
         ['Valentina Ríos', 'inmersion-mensual', -10, 'paypal'],
         ['Sol Martínez', 'inmersion-semestral', -170, 'mercadopago'],
         ['Camila Sosa', 'orilla-mensual', -40, 'mercadopago'],
         ['Tomás Pereyra', 'inmersion-mensual', -3, 'mercadopago'],
-        ['Ale Benítez', 'inmersion-anual', -350, 'paypal'],
         ['Inés Acosta', 'orilla-mensual', -18, 'paypal'],
     ];
     foreach ($people as [$name, $planSlug, $daysAgo, $gateway]) {
@@ -202,10 +326,11 @@ function seed_demo(): void
         $userId = User::create([
             'name' => $name, 'email' => $email, 'role' => 'member',
             'password_hash' => password_hash('miembro123', PASSWORD_DEFAULT),
+            'address' => 'Calle y número', 'city' => 'Mar del Plata', 'postal_code' => '7600',
             'created_at' => date('Y-m-d H:i:s', strtotime("{$daysAgo} days")),
         ]);
         $plan = Plan::findBy('slug', $planSlug);
         MembershipService::assignManual($userId, (int) $plan['id'], date('Y-m-d', strtotime("{$daysAgo} days")), true, $gateway, 'Dato de prueba');
     }
-    echo "  Miembros de prueba: contraseña \"miembro123\"\n";
+    echo "  Miembros de prueba: contraseña \"miembro123\" (por ejemplo juana-perez@ejemplo.com)\n";
 }

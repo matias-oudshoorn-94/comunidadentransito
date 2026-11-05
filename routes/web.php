@@ -26,7 +26,7 @@ $router->post('/contacto', [PageController::class, 'sendContact']);
 // B · Contenidos para vos
 $router->get('/contenidos', [ContentController::class, 'index']);
 $router->get('/contenidos/runas-de-letras', [ContentController::class, 'runes']);
-$router->post('/contenidos/runas-de-letras/sacar', [ContentController::class, 'drawRune'], ['auth']);
+$router->post('/contenidos/runas-de-letras/sacar', [ContentController::class, 'drawRune']);
 $router->post('/contenidos/tecniquitas/regalo', [ContentController::class, 'gift']);
 $router->get('/contenidos/{section}', [ContentController::class, 'section']);
 $router->get('/contenidos/{section}/{entry}', [ContentController::class, 'entry']);
@@ -53,6 +53,7 @@ $router->group(['middleware' => ['auth']], function (Router $r) {
     $r->post('/mi-cuenta/datos', [MemberController::class, 'updateProfile']);
     $r->post('/mi-cuenta/clave', [MemberController::class, 'updatePassword']);
     $r->post('/mi-cuenta/renovacion', [MemberController::class, 'stopRenewal']);
+    $r->get('/mi-cuenta/comprobante/{id}', [MemberController::class, 'receipt']);
 });
 
 // Notificaciones de pago (sin CSRF: se validan con la firma de cada pasarela)

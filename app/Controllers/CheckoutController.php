@@ -7,7 +7,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\ErrorHandler;
-use App\Core\Session;
+use App\Models\Entry;
 use App\Models\Membership;
 use App\Models\Payment;
 use App\Models\Plan;
@@ -28,10 +28,10 @@ final class CheckoutController extends Controller
             $this->redirect('/membresias');
         }
         $this->view('checkout/show', [
-            'title'    => 'Compra',
-            'plan'     => $plan,
-            'plans'    => Plan::active(),
-            'gateways' => GatewayFactory::available(),
+            'title'      => 'Compra',
+            'headerMode' => 'checkout',
+            'plan'       => $plan,
+            'gateways'   => GatewayFactory::available(),
         ]);
     }
 
@@ -39,27 +39,37 @@ final class CheckoutController extends Controller
     {
         $plan = Plan::find($this->request->int('plan_id'));
         $gateways = GatewayFactory::available();
-        $gatewayName = $this->request->string('gateway');
+        $gatewayName = $this->request->string('gateway', 'mercadopago');
         if (!$plan || !(int) $plan['is_active'] || !isset($gateways[$gatewayName])) {
             $this->back('Elegí un plan y un medio de pago.');
         }
 
-        // Quien no tiene cuenta la crea en el mismo paso
+        // Quien no tiene cuenta la crea en el mismo paso. La dirección es para la carta Slow Mood.
         $user = Auth::user();
+        $rules = [
+            'address'     => 'required|max:200',
+            'city'        => 'required|max:120',
+            'postal_code' => 'nullable|max:20',
+        ];
         if (!$user) {
-            $data = $this->validate([
+            $rules += [
                 'name'     => 'required|max:120',
                 'email'    => 'required|email|max:190|unique:users,email',
                 'password' => 'required|min:8|max:200',
-                'terms'    => 'required',
-            ]);
+            ];
+        }
+        $data = $this->validate($rules);
+        if (!$user) {
             $id = User::register($data['name'], $data['email'], (string) $this->request->input('password'));
             Auth::login(User::find($id));
-            $user = Auth::user();
-        } elseif (!$this->request->bool('terms')) {
-            Session::flash('errors', ['terms' => ['Tenés que aceptar las condiciones.']]);
-            $this->back();
         }
+        User::update((int) Auth::id(), [
+            'address'     => $data['address'],
+            'city'        => $data['city'],
+            'postal_code' => $data['postal_code'] ?? null,
+        ]);
+        Auth::refresh();
+        $user = Auth::user();
 
         $gateway = GatewayFactory::make($gatewayName);
         $ids = MembershipService::startCheckout($user, $plan, $gatewayName, $gateway->currency());
@@ -123,10 +133,12 @@ final class CheckoutController extends Controller
         if ($payment && (int) $payment['user_id'] !== (int) $user['id']) {
             $payment = null;
         }
+        $sectionIds = array_column(\App\Models\Section::allWithTiers(), 'id');
         $this->view('checkout/welcome', [
             'title'      => 'Bienvenida',
             'payment'    => $payment,
             'membership' => Membership::currentFor((int) $user['id']),
+            'event'      => Entry::upcomingEvents($sectionIds, 1)[0] ?? null,
         ]);
     }
 
@@ -139,7 +151,7 @@ final class CheckoutController extends Controller
             Mailer::send(
                 $user['email'],
                 'Te damos la bienvenida a ' . config('app.name'),
-                "¡Hola, {$user['name']}!\n\nTu membresía {$plan['name']} ya está activa.\nEntrá a tu espacio: " . absolute_url('/mi-comunidad') . "\n\nCon cariño,\nSil",
+                "¡Hola, {$user['name']}!\n\nTu membresía {$plan['name']} ya está activa.\nEntrá a tu espacio: " . absolute_url('/mi-comunidad') . "\n\nCon cariño,\nSilvina",
             );
             $this->redirect('/bienvenida?pago=' . $paymentId);
         }

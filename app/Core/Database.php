@@ -31,6 +31,13 @@ final class Database
             if (!str_starts_with($path, '/')) {
                 $path = BASE_PATH . '/' . $path;
             }
+            // SQLite crea un archivo vacío si no existe: mejor avisar que DB_DRIVER está mal
+            if (!is_file($path)) {
+                throw new \RuntimeException(
+                    "No existe la base SQLite ({$path}). Si estás en el hosting, poné DB_DRIVER=mysql en el .env; "
+                    . 'en desarrollo, corré php bin/migrate.php --seed.'
+                );
+            }
             $pdo = new PDO('sqlite:' . $path, null, null, $options);
             $pdo->exec('PRAGMA foreign_keys = ON');
             $pdo->exec('PRAGMA journal_mode = WAL');

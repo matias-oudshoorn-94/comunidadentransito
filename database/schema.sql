@@ -9,6 +9,9 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(20) NOT NULL DEFAULT 'member',          -- member | admin
     phone VARCHAR(40) NULL,
     country VARCHAR(60) NULL,
+    address VARCHAR(200) NULL,                            -- dirección para la carta Slow Mood
+    city VARCHAR(120) NULL,
+    postal_code VARCHAR(20) NULL,
     notes {{TEXT}} NULL,                                  -- notas internas del admin
     last_login_at DATETIME NULL,
     created_at DATETIME NOT NULL,
@@ -103,6 +106,13 @@ CREATE TABLE IF NOT EXISTS entries (
     slug VARCHAR(160) NOT NULL,
     title VARCHAR(200) NOT NULL,
     kind VARCHAR(20) NOT NULL DEFAULT 'lectura',          -- lectura | episodio | grabacion | carta | relato | encuentro
+    kicker VARCHAR(160) NULL,                             -- "PODCAST · CHIRIMBITAS · EPISODIO 1"
+    meta VARCHAR(200) NULL,                               -- "Silvina Oudshoorn · duración a confirmar"
+    hand_note VARCHAR(200) NULL,                          -- nota manuscrita bajo el título
+    category VARCHAR(60) NULL,                            -- filtros y bloques dentro de una sección
+    label VARCHAR(80) NULL,                               -- texto manuscrito de la tarjeta cuando no hay foto
+    image VARCHAR(200) NULL,                              -- ruta dentro de public/assets/img
+    image_caption VARCHAR(200) NULL,
     excerpt VARCHAR(400) NULL,
     body {{TEXT}} NULL,
     media_url VARCHAR(500) NULL,                          -- audio, video o PDF
@@ -150,6 +160,9 @@ CREATE TABLE IF NOT EXISTS books (
     pages INTEGER NULL,
     synopsis {{TEXT}} NULL,
     cover VARCHAR(200) NULL,
+    price DECIMAL(12,2) NULL,
+    is_new INTEGER NOT NULL DEFAULT 0,
+    sold_out INTEGER NOT NULL DEFAULT 0,
     buy_url VARCHAR(500) NULL,
     sort INTEGER NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL,

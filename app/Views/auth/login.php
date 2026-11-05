@@ -1,26 +1,26 @@
 <?php /** C2 · Ingresar */ ?>
 <section class="auth">
     <?= partial('partials/washes') ?>
-    <div class="auth__card panel">
-        <span class="kicker">Ingresar</span>
-        <h1>Qué bueno verte</h1>
-        <p class="muted">Entrá con el email de tu membresía.</p>
+    <div class="auth__card">
+        <img class="auth__logo" src="<?= asset('img/logo-sintetico.webp') ?>" alt="Comunidad en tránsito">
+        <span class="hand">qué lindo que vuelvas</span>
+        <h1>Ingresá a la Comunidad</h1>
         <form class="form" method="post" action="/ingresar" novalidate>
             <?= csrf_field() ?>
             <div class="field <?= error('email') ? 'has-error' : '' ?>">
                 <label for="email">Email</label>
-                <input class="input" id="email" name="email" type="email" value="<?= e(old('email')) ?>" autocomplete="email" required autofocus>
+                <input class="input" id="email" name="email" type="email" value="<?= e(old('email')) ?>" autocomplete="email" placeholder="nombre@correo.com" required autofocus>
                 <?= partial('partials/field-error', ['name' => 'email']) ?>
             </div>
             <div class="field <?= error('password') ? 'has-error' : '' ?>">
                 <label for="password">Contraseña</label>
-                <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
+                <input class="input" id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
                 <?= partial('partials/field-error', ['name' => 'password']) ?>
             </div>
-            <button class="btn btn--block" type="submit">Ingresar</button>
+            <a class="auth__forgot" href="<?= e(whatsapp('Hola Silvina, olvidé mi contraseña de la Comunidad.')) ?>" target="_blank" rel="noopener">¿Olvidaste tu contraseña?</a>
+            <button class="btn btn--block btn--lg" type="submit">Ingresar</button>
         </form>
         <hr>
-        <p class="small center" style="margin:0">¿Todavía no sos parte? <a href="/membresias">Elegí tu membresía</a> o <a href="/registro">creá una cuenta</a>.</p>
-        <p class="small center muted" style="margin:8px 0 0">¿Olvidaste tu contraseña? <a href="/contacto">Escribinos</a> y te ayudamos.</p>
+        <div class="auth__alt"><p>¿Todavía no sos parte?</p><a class="link-arrow" href="/membresias">Sumate a la Comunidad →</a></div>
     </div>
 </section>
