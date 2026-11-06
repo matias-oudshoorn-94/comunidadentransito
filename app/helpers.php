@@ -438,3 +438,10 @@ function first_char(string $text): string
 {
     return preg_split('//u', $text, 2, PREG_SPLIT_NO_EMPTY)[0] ?? '';
 }
+
+/** Recorta a $max caracteres sin romper letras con tilde (sin ext-mbstring). */
+function mb_substr_safe(string $text, int $max): string
+{
+    $chars = preg_split('//u', $text, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    return implode('', array_slice($chars, 0, $max));
+}

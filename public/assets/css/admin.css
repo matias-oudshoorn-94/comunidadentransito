@@ -203,3 +203,15 @@ body.admin-auth { min-height: 100vh; background: var(--petroleo); display: grid;
 .admin-row__who .sub { display: block; }
 .admin-row__form { padding: 0 4px 16px; }
 @media (max-width: 700px) { .admin-row summary { grid-template-columns: 1fr auto; } .admin-row summary > .sub { display: none; } }
+
+/* Galería de una entrega */
+.gallery-admin { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.gallery-admin:empty { display: none; }
+.gallery-admin__item { display: grid; gap: 8px; padding: 8px; border: 1px solid var(--linea); border-radius: 12px; background: var(--blanco); }
+.gallery-admin__item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; }
+.gallery-admin__item .input { min-height: 38px; padding: 6px 12px; font-size: .88rem; }
+.gallery-admin__item.is-removed { opacity: .45; }
+.gallery-admin__tools { display: flex; align-items: center; gap: 6px; }
+.gallery-admin__tools .check { margin-left: auto; }
+.gallery-admin__new { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+.gallery-admin__new img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; outline: 2px dashed var(--celeste); outline-offset: -2px; }

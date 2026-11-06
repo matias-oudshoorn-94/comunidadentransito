@@ -102,6 +102,7 @@ function seed_entry(int $sectionId, array $e, int $i): void
         'label'         => $e['label'] ?? null,
         'image'         => $e['image'] ?? null,
         'image_caption' => $e['image_caption'] ?? null,
+        'gallery_title' => $e['gallery_title'] ?? null,
         'excerpt'       => $e['excerpt'] ?? null,
         'body'          => $e['body'] ?? null,
         'media_url'     => $e['media_url'] ?? null,
@@ -112,6 +113,10 @@ function seed_entry(int $sectionId, array $e, int $i): void
         'created_at'    => $published,
         'updated_at'    => $published,
     ]);
+    $entryId = (int) Database::pdo()->lastInsertId();
+    foreach ($e['gallery'] ?? [] as $path) {
+        \App\Models\EntryImage::add($entryId, $path);
+    }
 }
 
 function seed_entries_for(string $slug): array
@@ -216,8 +221,9 @@ function seed_entries_for(string $slug): array
                     . "Los invito a imaginar esas tardecitas calurosas bajo las frondosas copas de árboles antiguos. Pastizales ondulados por el viento y salpicados de pequeñas flores que brillan como joyas; senderos estrechos entre las matas y macizos de colores que conducen a nuevos paisajes; un arroyo que nutre el estanque del que Monet no se hubiera despegado sin antes pintar unas quinientas obras; un arco de rosas que enmarca la entrada a un huerto lleno de magia…\n\n"
                     . "Una mañana, después de tomar un desayuno casero, me fui a leer bajo una enorme magnolia. Estaba cargada de flores y su fragancia se hacía hasta empalagosa por su intensidad. No me podía concentrar y dejé que mi mente se fuera a vagabundear; en un instante me encontré afirmando en silencio “si alguna vez me vuelvo a casar, mi ramo va a ser de magnolias”.\n\n"
                     . "Los días que estuve en Mainumbí pasaron volando. Lo que sí puedo asegurar es que mi tránsito por el campo de flores fue una experiencia especial, que atesoraré toda la vida. Se trata de cerrar etapas, de cumplir sueños, de arriesgarse a que suceda.\n\n"
-                    . "¿Se acuerdan lo que les conté sobre la magnolia? Bueno… tres años más tarde conocí al amor de mi vida ¡y nos casamos!\n\n"
-                    . "@galeria explorá las imágenes de este maravilloso lugar | fotos/mainumbi-1.jpg fotos/mainumbi-2.jpg fotos/mainumbi-3.jpg fotos/mainumbi-4.jpg fotos/mainumbi-5.jpg fotos/flores-lilas.jpg",
+                    . "¿Se acuerdan lo que les conté sobre la magnolia? Bueno… tres años más tarde conocí al amor de mi vida ¡y nos casamos!",
+                'gallery_title' => 'explorá las imágenes de este maravilloso lugar',
+                'gallery' => ['fotos/mainumbi-1.jpg', 'fotos/mainumbi-2.jpg', 'fotos/mainumbi-3.jpg', 'fotos/mainumbi-4.jpg', 'fotos/mainumbi-5.jpg', 'fotos/flores-lilas.jpg'],
             ],
             ['title' => 'Lugar a confirmar con Silvina', 'kind' => 'relato', 'kicker' => 'NOVIEMBRE 2026', 'label' => 'próximo lugar',
                 'excerpt' => 'Muy pronto.', 'body' => 'Muy pronto.', 'published_at' => '2026-09-01 10:00:00'],

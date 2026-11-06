@@ -56,6 +56,32 @@ $limit = \App\Services\Uploader::serverLimit();
                 <div class="field"><label for="image_caption">Epígrafe</label><input class="input" id="image_caption" name="image_caption" value="<?= e(old('image_caption', $entry['image_caption'] ?? '')) ?>"></div>
             </div>
         </fieldset>
+        <fieldset class="upload" data-gallery>
+            <legend>Galería de imágenes</legend>
+            <p class="hint" style="margin:0">Se muestran en un slider dentro de la entrega, aparte de la imagen principal. Podés elegir varias a la vez<?= ini_get('max_file_uploads') ? ' (hasta ' . (int) ini_get('max_file_uploads') . ' por vez)' : '' ?>.</p>
+            <div class="field"><label for="gallery_title">Título del slider <span class="muted">(opcional)</span></label><input class="input" id="gallery_title" name="gallery_title" value="<?= e(old('gallery_title', $entry['gallery_title'] ?? '')) ?>" placeholder="explorá las imágenes de este lugar"></div>
+            <ol class="gallery-admin" data-gallery-list>
+                <?php foreach ($gallery ?? [] as $i => $g): ?>
+                    <li class="gallery-admin__item" data-gallery-item>
+                        <img src="<?= e(img_url($g['path']) ?? '') ?>" alt="">
+                        <input type="hidden" name="gallery[<?= (int) $g['id'] ?>][sort]" value="<?= $i + 1 ?>" data-sort>
+                        <input class="input" name="gallery[<?= (int) $g['id'] ?>][caption]" value="<?= e($g['caption']) ?>" placeholder="Epígrafe (opcional)" aria-label="Epígrafe">
+                        <div class="gallery-admin__tools">
+                            <button class="btn btn--ghost btn--xs" type="button" data-move="-1" aria-label="Mover antes">←</button>
+                            <button class="btn btn--ghost btn--xs" type="button" data-move="1" aria-label="Mover después">→</button>
+                            <label class="check small"><input type="checkbox" name="gallery[<?= (int) $g['id'] ?>][remove]" value="1" data-remove> Quitar</label>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+            <div class="gallery-admin__new" data-gallery-new hidden></div>
+            <div>
+                <label class="btn btn--soft btn--sm upload__button"><?= icon('plus') ?> Agregar imágenes
+                    <input type="file" name="gallery_files[]" accept="image/jpeg,image/png,image/webp,image/gif" multiple data-gallery-input>
+                </label>
+                <span class="hint" data-gallery-count>JPG, PNG o WebP, hasta 15 MB cada una. Los epígrafes de las nuevas se escriben después de guardar.</span>
+            </div>
+        </fieldset>
         <div class="field"><label for="excerpt">Adelanto</label><input class="input" id="excerpt" name="excerpt" maxlength="400" value="<?= e(old('excerpt', $entry['excerpt'] ?? '')) ?>"><span class="hint">Se muestra en la tarjeta.</span></div>
         <div class="field"><div class="upload__label-row"><label for="body">Texto</label>
             <label class="btn btn--ghost btn--xs upload__button" title="Sube una imagen y la agrega donde está el cursor"><?= icon('plus') ?> Insertar imagen en el texto

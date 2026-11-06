@@ -88,4 +88,37 @@
       }
     });
   });
+
+  // Galería: reordenar con flechas, marcar para quitar y ver las imágenes nuevas antes de guardar
+  $$('[data-gallery]').forEach((box) => {
+    const list = $('[data-gallery-list]', box);
+    const renumber = () => $$('[data-gallery-item]', list).forEach((item, i) => { $('[data-sort]', item).value = i + 1; });
+    list.addEventListener('click', (e) => {
+      const button = e.target.closest('[data-move]');
+      if (!button) return;
+      const item = button.closest('[data-gallery-item]');
+      if (button.dataset.move === '-1' && item.previousElementSibling) item.previousElementSibling.before(item);
+      if (button.dataset.move === '1' && item.nextElementSibling) item.nextElementSibling.after(item);
+      renumber();
+    });
+    list.addEventListener('change', (e) => {
+      if (e.target.matches('[data-remove]')) e.target.closest('[data-gallery-item]').classList.toggle('is-removed', e.target.checked);
+    });
+    const input = $('[data-gallery-input]', box);
+    const preview = $('[data-gallery-new]', box);
+    if (!input) return;
+    input.addEventListener('change', () => {
+      preview.innerHTML = '';
+      [...input.files].forEach((file) => {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = file.name;
+        preview.append(img);
+      });
+      preview.hidden = input.files.length === 0;
+      const total = [...input.files].reduce((n, f) => n + f.size, 0);
+      const word = input.files.length === 1 ? ' imagen nueva' : ' imágenes nuevas';
+      $('[data-gallery-count]', box).textContent = input.files.length + word + ' · ' + mb(total) + '. Se suben al guardar.';
+    });
+  });
 })();

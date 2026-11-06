@@ -124,6 +124,7 @@ CREATE TABLE IF NOT EXISTS entries (
     label VARCHAR(80) NULL,                               -- texto manuscrito de la tarjeta cuando no hay foto
     image VARCHAR(200) NULL,                              -- ruta dentro de public/assets/img
     image_caption VARCHAR(200) NULL,
+    gallery_title VARCHAR(160) NULL,                      -- título manuscrito sobre el slider de la galería
     excerpt VARCHAR(400) NULL,
     body {{TEXT}} NULL,
     media_url VARCHAR(500) NULL,                          -- audio, video o PDF
@@ -136,6 +137,18 @@ CREATE TABLE IF NOT EXISTS entries (
     UNIQUE (section_id, slug),
     FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
 ){{TABLE}};
+
+-- Galería de imágenes de cada entrega (aparte de la imagen principal), en el orden de "sort"
+CREATE TABLE IF NOT EXISTS entry_images (
+    id {{PK}},
+    entry_id {{FK}} NOT NULL,
+    path VARCHAR(200) NOT NULL,                           -- uploads/… o una ruta dentro de assets/img
+    caption VARCHAR(200) NULL,
+    sort INTEGER NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES entries(id) ON DELETE CASCADE
+){{TABLE}};
+CREATE INDEX idx_entry_images_entry ON entry_images (entry_id, sort);
 
 -- Banco de consignas de Runas de Letras
 CREATE TABLE IF NOT EXISTS runes (

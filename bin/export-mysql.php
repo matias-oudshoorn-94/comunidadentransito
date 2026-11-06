@@ -24,7 +24,7 @@ if (!$output) {
 }
 
 // Orden en que se crean (las tablas con claves foráneas van después de las que referencian)
-$tables = ['admins', 'users', 'plans', 'memberships', 'payments', 'sections', 'section_tiers', 'entries', 'runes', 'rune_draws', 'books', 'contact_messages', 'subscribers'];
+$tables = ['admins', 'users', 'plans', 'memberships', 'payments', 'sections', 'section_tiers', 'entries', 'entry_images', 'runes', 'rune_draws', 'books', 'contact_messages', 'subscribers'];
 
 $schema = strtr((string) file_get_contents(BASE_PATH . '/database/schema.sql'), [
     '{{PK}}'    => 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',

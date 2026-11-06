@@ -78,6 +78,26 @@ final class Request
         return is_array($file) && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE ? $file : null;
     }
 
+    /** Varios archivos de un mismo campo (name="campo[]"), ya separados uno por uno. */
+    public function files(string $key): array
+    {
+        $raw = $_FILES[$key] ?? null;
+        if (!is_array($raw) || !is_array($raw['name'] ?? null)) {
+            return [];
+        }
+        $files = [];
+        foreach ($raw['name'] as $i => $name) {
+            if (($raw['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            $files[] = [
+                'name' => $name, 'type' => $raw['type'][$i], 'tmp_name' => $raw['tmp_name'][$i],
+                'error' => $raw['error'][$i], 'size' => $raw['size'][$i],
+            ];
+        }
+        return $files;
+    }
+
     public function header(string $name): ?string
     {
         $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));

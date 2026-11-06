@@ -259,4 +259,42 @@
     const message = e.target.dataset?.confirm;
     if (message && !window.confirm(message)) e.preventDefault();
   });
+
+  /* ---------- Slider de la galería: flechas, puntos, contador, teclado y deslizar con el dedo ---------- */
+  $$('[data-slider]').forEach((slider) => {
+    const track = $('[data-slider-track]', slider);
+    const slides = [...track.children];
+    if (slides.length < 2) return;
+    const prev = $('[data-slider-prev]', slider);
+    const next = $('[data-slider-next]', slider);
+    const dots = $$('[data-slider-dot]', slider);
+    const count = $('[data-slider-count]', slider);
+    let current = 0;
+
+    const go = (i) => {
+      i = Math.max(0, Math.min(slides.length - 1, i));
+      track.scrollTo({ left: slides[i].offsetLeft - track.offsetLeft, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+    };
+    const update = () => {
+      const i = Math.round(track.scrollLeft / track.clientWidth);
+      if (i === current && count.dataset.ready) return;
+      current = i;
+      count.dataset.ready = '1';
+      count.textContent = (i + 1) + ' / ' + slides.length;
+      dots.forEach((d, n) => (n === i ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current')));
+      prev.disabled = i === 0;
+      next.disabled = i === slides.length - 1;
+    };
+
+    prev.addEventListener('click', () => go(current - 1));
+    next.addEventListener('click', () => go(current + 1));
+    dots.forEach((d) => d.addEventListener('click', () => go(Number(d.dataset.sliderDot))));
+    track.addEventListener('scroll', () => window.requestAnimationFrame(update), { passive: true });
+    track.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(current + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(current - 1); }
+    });
+    window.addEventListener('resize', () => go(current));
+    update();
+  });
 })();

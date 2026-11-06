@@ -1,14 +1,14 @@
 <?php
 /** B5 · Vista de una entrega
  * @var array $section @var array $entry @var bool $canRead @var bool $hasAccess @var array $cfg
- * @var array|null $prev @var array|null $next @var array $more */
+ * @var array|null $prev @var array|null $next @var array $more @var array $gallery */
 $slug = $section['slug'];
 $kind = $entry['kind'];
 $media = (string) $entry['media_url'];
 $ext = strtolower(pathinfo(parse_url($media, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
 $isPdf = $ext === 'pdf';
 $article = $slug === 'pispeando-arte';
-[$body, $gallery] = rich_text($entry['body'], $canRead ? null : 2);
+[$body, $textGallery] = rich_text($entry['body'], $canRead ? null : 2); // $textGallery: formato viejo "@galeria" dentro del texto
 $sectionUrl = '/contenidos/' . $slug;
 
 $embed = null;
@@ -55,6 +55,7 @@ $lock = function () use ($sectionUrl) { ?>
         <?php endif; ?>
         <div class="container container--narrow">
             <div class="entry-body entry-body--sans"><?= $body ?></div>
+            <?php if ($canRead && $gallery): ?><?= partial('partials/gallery-slider', ['images' => $gallery, 'title' => $entry['gallery_title']]) ?><?php endif; ?>
             <?php if ($canRead): ?>
                 <div class="signature-row"><img class="avatar avatar--sm" src="<?= asset('img/fotos/sil-sonrisa.jpg') ?>" alt="" style="object-fit:cover"><span class="signature">Con cariño, Silvina</span></div>
             <?php else: ?>
@@ -136,6 +137,8 @@ $lock = function () use ($sectionUrl) { ?>
                     <p class="signature">— Silvina</p>
                 <?php endif; ?>
 
+                <?php if ($canRead && $gallery): ?><?= partial('partials/gallery-slider', ['images' => $gallery, 'title' => $entry['gallery_title']]) ?><?php endif; ?>
+
                 <?php if ($canRead): ?>
                     <hr class="entry__rule">
                     <div class="entry__actions">
@@ -150,12 +153,12 @@ $lock = function () use ($sectionUrl) { ?>
         </div>
     </article>
 
-    <?php if ($canRead && $gallery): ?>
-        <section class="gallery" id="fotos">
-            <span class="hand"><?= e($gallery['title']) ?></span>
+    <?php if ($canRead && $textGallery): ?>
+        <section class="gallery" id="fotos-texto">
+            <span class="hand"><?= e($textGallery['title']) ?></span>
             <div class="strip">
                 <div class="strip__track">
-                    <?php foreach ([false, true] as $copy): foreach ($gallery['images'] as $src): ?>
+                    <?php foreach ([false, true] as $copy): foreach ($textGallery['images'] as $src): ?>
                         <div class="strip__item" <?= $copy ? 'aria-hidden="true"' : '' ?>><?= img($src, '', 'loading="lazy"') ?></div>
                     <?php endforeach; endforeach; ?>
                 </div>

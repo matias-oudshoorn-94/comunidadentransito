@@ -9,6 +9,7 @@ use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Session;
 use App\Models\Entry;
+use App\Models\EntryImage;
 use App\Models\Rune;
 use App\Models\Section;
 use App\Models\Subscriber;
@@ -59,13 +60,15 @@ final class ContentController extends Controller
         $prev = $index !== false && $index > 0 ? $siblings[$index - 1] : null;
         $next = $index !== false && $index < count($siblings) - 1 ? $siblings[$index + 1] : null;
 
+        $canRead = AccessService::canViewEntry($user, $sectionRow, $entryRow);
         $this->view('content/entry', [
             'title'     => $entryRow['title'],
             'section'   => $sectionRow,
             'entry'     => $entryRow,
             'cfg'       => config('sections.' . $sectionRow['slug'], []),
             'hasAccess' => $hasAccess,
-            'canRead'   => AccessService::canViewEntry($user, $sectionRow, $entryRow),
+            'canRead'   => $canRead,
+            'gallery'   => $canRead ? EntryImage::forEntry((int) $entryRow['id']) : [],
             'prev'      => $prev,
             'next'      => $next,
             'more'      => $this->moreForMonth((int) $sectionRow['id']),
