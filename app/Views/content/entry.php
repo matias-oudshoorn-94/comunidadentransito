@@ -12,8 +12,8 @@ $article = $slug === 'pispeando-arte';
 $sectionUrl = '/contenidos/' . $slug;
 
 $embed = null;
-if (preg_match('~(?:youtube\.com/watch\?v=|youtu\.be/)([\w-]{6,})~', $media, $m)) {
-    $embed = 'https://www.youtube-nocookie.com/embed/' . $m[1];
+if ($yt = youtube_id($media)) {
+    $embed = 'https://www.youtube-nocookie.com/embed/' . $yt;
 } elseif (preg_match('~vimeo\.com/(\d+)~', $media, $m)) {
     $embed = 'https://player.vimeo.com/video/' . $m[1];
 }

@@ -23,6 +23,27 @@
     });
   });
 
+  // Sin imagen subida: la vista previa muestra la miniatura del video de YouTube
+  const mediaUrl = $('#media_url');
+  const imagePreview = $('[data-preview]');
+  if (mediaUrl && imagePreview) {
+    const youtubeId = (url) => (url.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|shorts\/|live\/|embed\/)|youtu\.be\/)([\w-]{11})/) || [])[1];
+    mediaUrl.addEventListener('input', () => {
+      const current = $('img', imagePreview);
+      if (current && !current.hasAttribute('data-video-thumb')) return; // ya hay una imagen subida
+      const id = youtubeId(mediaUrl.value.trim());
+      imagePreview.innerHTML = '';
+      if (!id) { imagePreview.innerHTML = '<span>Sin imagen</span>'; return; }
+      const img = document.createElement('img');
+      img.dataset.videoThumb = '';
+      img.alt = '';
+      // Si el video no tiene miniatura grande, YouTube devuelve una gris de 120 px: usar la estándar
+      img.onload = () => { if (img.naturalWidth <= 120 && img.src.includes('maxresdefault')) img.src = img.src.replace('maxresdefault', 'hqdefault'); };
+      img.src = 'https://i.ytimg.com/vi/' + id + '/maxresdefault.jpg';
+      imagePreview.append(img);
+    });
+  }
+
   // Nombre y peso del archivo de video, audio o PDF
   $$('[data-file-input]').forEach((input) => {
     input.addEventListener('change', () => {

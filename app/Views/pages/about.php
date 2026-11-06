@@ -1,7 +1,7 @@
 <?php /** A5 · Sobre Silvina */
 $video = (string) config('site.about_video');
 $embed = null;
-if (preg_match('~(?:youtube\.com/watch\?v=|youtu\.be/)([\w-]{6,})~', $video, $m)) { $embed = 'https://www.youtube-nocookie.com/embed/' . $m[1]; }
+if ($yt = youtube_id($video)) { $embed = 'https://www.youtube-nocookie.com/embed/' . $yt; }
 elseif (preg_match('~vimeo\.com/(\d+)~', $video, $m)) { $embed = 'https://player.vimeo.com/video/' . $m[1]; }
 $timeline = [
     ['Mar del Plata', 'Nace en Mar del Plata, crece en Neuquén y vuelve a estudiar cerámica.'],

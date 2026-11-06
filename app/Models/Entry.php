@@ -23,19 +23,20 @@ final class Entry extends Model
     /** Entregas publicadas de una sección: primero la de muestra, después las más nuevas. */
     public static function forSection(int $sectionId): array
     {
-        return self::where(
+        return self::withImages(self::where(
             'section_id = ? AND is_published = 1 AND published_at <= ?',
             [$sectionId, now()],
             'is_preview DESC, published_at DESC',
-        );
+        ));
     }
 
     public static function bySlug(int $sectionId, string $slug): ?array
     {
-        return Database::one(
+        $row = Database::one(
             'SELECT * FROM entries WHERE section_id = ? AND slug = ? AND is_published = 1 AND published_at <= ?',
             [$sectionId, $slug, now()],
         );
+        return $row ? self::withImages([$row])[0] : null;
     }
 
     /** Últimas entregas de las secciones indicadas (para Mi Comunidad). */
@@ -45,12 +46,12 @@ final class Entry extends Model
             return [];
         }
         $in = implode(',', array_fill(0, count($sectionIds), '?'));
-        return Database::all(
+        return self::withImages(Database::all(
             "SELECT e.*, s.slug AS section_slug, s.name AS section_name FROM entries e JOIN sections s ON s.id = e.section_id
              WHERE e.section_id IN ({$in}) AND e.is_published = 1 AND e.published_at <= ?
              ORDER BY e.published_at DESC LIMIT {$limit}",
             [...array_map('intval', $sectionIds), now()],
-        );
+        ));
     }
 
     public static function upcomingEvents(array $sectionIds, int $limit = 3): array
@@ -59,12 +60,21 @@ final class Entry extends Model
             return [];
         }
         $in = implode(',', array_fill(0, count($sectionIds), '?'));
-        return Database::all(
+        return self::withImages(Database::all(
             "SELECT e.*, s.slug AS section_slug, s.name AS section_name FROM entries e JOIN sections s ON s.id = e.section_id
              WHERE e.section_id IN ({$in}) AND e.is_published = 1 AND e.event_at >= ?
              ORDER BY e.event_at ASC LIMIT {$limit}",
             [...array_map('intval', $sectionIds), now()],
-        );
+        ));
+    }
+
+    /** Sin imagen subida y con video de YouTube: usa la miniatura del video. */
+    private static function withImages(array $rows): array
+    {
+        foreach ($rows as &$row) {
+            $row['image'] = entry_image($row);
+        }
+        return $rows;
     }
 
     public static function adminList(int $sectionId = 0): array

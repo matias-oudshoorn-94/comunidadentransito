@@ -87,6 +87,7 @@ Programar una vez por día: `php bin/expire.php` (marca como vencidas las membre
 - Imágenes, audios, videos y PDF de las entregas se guardan en `public/uploads/AAAA/MM/` (no se suben a git). Se verifica el tipo real de cada archivo y la carpeta no ejecuta código.
 - Límite por archivo: lo define PHP. `public/.user.ini` pide 512 MB; si Hostinger no lo toma, cambialo en hPanel → Avanzado → Configuración de PHP (`upload_max_filesize` y `post_max_size`). En local, `composer serve` ya arranca con 512 MB.
 - Videos largos: conviene YouTube (no lista o privado) para no llenar el espacio del hosting.
+- Si una entrega no tiene imagen y su video es de YouTube, se usa la miniatura del video (`entry_image()` en `app/helpers.php`).
 - Ojo con el deploy automático: comprobá que no borre `public/uploads/` (subí una imagen de prueba, hacé un deploy y fijate que siga). Hacé backup de esa carpeta junto con la base.
 
 ## Pendiente

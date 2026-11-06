@@ -41,13 +41,14 @@ $limit = \App\Services\Uploader::serverLimit();
             <legend>Imagen</legend>
             <div class="upload__row">
                 <div class="upload__preview" data-preview>
-                    <?php if ($url = img_url($entry['image'] ?? null)): ?><img src="<?= e($url) ?>" alt=""><?php else: ?><span>Sin imagen</span><?php endif; ?>
+                    <?php if ($url = img_url($entry['image'] ?? null)): ?><img src="<?= e($url) ?>" alt=""><?php elseif ($thumb = youtube_thumb($entry['media_url'] ?? null)): ?><?= img($thumb, '', 'data-video-thumb') ?><?php else: ?><span>Sin imagen</span><?php endif; ?>
                 </div>
                 <div class="upload__controls">
                     <label class="btn btn--soft btn--sm upload__button"><?= icon('download') ?> Subir archivo
                         <input type="file" name="image_file" accept="image/jpeg,image/png,image/webp,image/gif" data-preview-input>
                     </label>
                     <span class="hint" data-file-name>JPG, PNG o WebP, hasta 15 MB. Mejor apaisada, de al menos 1200 px de ancho.</span>
+                    <span class="hint">Si no subís una imagen y el video es de YouTube, se usa la miniatura del video.</span>
                     <?php if (!empty($entry['image'])): ?><label class="check"><input type="checkbox" name="image_remove" value="1"> Quitar la imagen</label><?php endif; ?>
                 </div>
             </div>

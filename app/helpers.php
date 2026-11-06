@@ -271,6 +271,11 @@ function icon(string $name, string $class = 'icon'): string
 function img(?string $src, string $alt = '', string $attrs = 'loading="lazy"'): string
 {
     if ($src && ($url = img_url($src))) {
+        // Miniatura de YouTube: si el video no tiene la de alta calidad, usa la estándar
+        if (str_ends_with($url, '/maxresdefault.jpg')) {
+            // (cuando falta, YouTube devuelve una imagen gris de 120 px en lugar de un error)
+            $attrs .= ' onload="if(this.naturalWidth<=120)this.src=this.src.replace(\'maxresdefault\',\'hqdefault\')"';
+        }
         return '<img src="' . e($url) . '" alt="' . e($alt) . '" ' . $attrs . '>';
     }
     return placeholder($alt);
@@ -282,6 +287,9 @@ function img(?string $src, string $alt = '', string $attrs = 'loading="lazy"'): 
  */
 function img_url(?string $src): ?string
 {
+    if ($src !== null && str_starts_with($src, 'https://i.ytimg.com/')) {
+        return $src;
+    }
     $src = ltrim((string) $src, '/');
     if ($src === '') {
         return null;
@@ -290,6 +298,28 @@ function img_url(?string $src): ?string
         return is_file(BASE_PATH . '/public/' . $src) ? '/' . $src : null;
     }
     return asset_exists('img/' . $src) ? asset('img/' . $src) : null;
+}
+
+/** Id de un video de YouTube (watch, youtu.be, shorts, live o embed), o null. */
+function youtube_id(?string $url): ?string
+{
+    if ($url && preg_match('~(?:youtube(?:-nocookie)?\.com/(?:watch\?(?:.*&)?v=|shorts/|live/|embed/)|youtu\.be/)([\w-]{11})~', $url, $m)) {
+        return $m[1];
+    }
+    return null;
+}
+
+/** Miniatura de un video de YouTube, o null si el link no es de YouTube. */
+function youtube_thumb(?string $url): ?string
+{
+    $id = youtube_id($url);
+    return $id ? 'https://i.ytimg.com/vi/' . $id . '/maxresdefault.jpg' : null;
+}
+
+/** Imagen de una entrega: la subida o, si no hay, la miniatura de su video de YouTube. */
+function entry_image(array $entry): ?string
+{
+    return ($entry['image'] ?? null) ?: youtube_thumb($entry['media_url'] ?? null);
 }
 
 /** Fondo de acuarela con texto manuscrito (tarjetas sin foto). */
