@@ -9,7 +9,7 @@ declare(strict_types=1);
  *   php bin/export-mysql.php database/export/comunidad.sql
  *
  * Para generar una base limpia de producción (sin miembros de prueba):
- *   DB_SQLITE_PATH=/tmp/limpia.sqlite ADMIN_PASSWORD='clave-segura' php bin/migrate.php --fresh --seed
+ *   DB_SQLITE_PATH=/tmp/limpia.sqlite php bin/migrate.php --fresh --seed
  *   DB_SQLITE_PATH=/tmp/limpia.sqlite php bin/export-mysql.php database/export/comunidad.sql
  */
 
@@ -24,7 +24,7 @@ if (!$output) {
 }
 
 // Orden en que se crean (las tablas con claves foráneas van después de las que referencian)
-$tables = ['users', 'plans', 'memberships', 'payments', 'sections', 'section_tiers', 'entries', 'runes', 'rune_draws', 'books', 'contact_messages', 'subscribers'];
+$tables = ['admins', 'users', 'plans', 'memberships', 'payments', 'sections', 'section_tiers', 'entries', 'runes', 'rune_draws', 'books', 'contact_messages', 'subscribers'];
 
 $schema = strtr((string) file_get_contents(BASE_PATH . '/database/schema.sql'), [
     '{{PK}}'    => 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',

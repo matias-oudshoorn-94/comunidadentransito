@@ -6,13 +6,24 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(120) NOT NULL,
     email VARCHAR(190) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL DEFAULT 'member',          -- member | admin
+    role VARCHAR(20) NOT NULL DEFAULT 'member',          -- siempre 'member' (la administración está en la tabla admins)
     phone VARCHAR(40) NULL,
     country VARCHAR(60) NULL,
     address VARCHAR(200) NULL,                            -- dirección para la carta Slow Mood
     city VARCHAR(120) NULL,
     postal_code VARCHAR(20) NULL,
     notes {{TEXT}} NULL,                                  -- notas internas del admin
+    last_login_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL
+){{TABLE}};
+
+-- Cuentas de administración: separadas de las personas del sitio, con su propio login en /admin/ingresar
+CREATE TABLE IF NOT EXISTS admins (
+    id {{PK}},
+    name VARCHAR(120) NOT NULL,
+    email VARCHAR(190) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
     last_login_at DATETIME NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL

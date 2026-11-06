@@ -13,16 +13,8 @@ use App\Services\MembershipService;
  */
 function seed_base(): void
 {
-    $email = strtolower((string) env('ADMIN_EMAIL', 'admin@comunidadentransito.local'));
-    if (!User::findByEmail($email)) {
-        User::create([
-            'name'          => (string) env('ADMIN_NAME', 'Silvina'),
-            'email'         => $email,
-            'password_hash' => password_hash((string) env('ADMIN_PASSWORD', 'cambiar-esta-clave'), PASSWORD_DEFAULT),
-            'role'          => 'admin',
-        ]);
-        echo "  Admin: {$email}\n";
-    }
+    // Las cuentas de administración no se cargan acá: se crean con `php bin/create-admin.php`
+    // o desde /admin/ingresar mientras no exista ninguna.
 
     // Precios de Figma (mensual). Anual = 10 meses ("2 meses de regalo"). Semestral y dólares: provisorios.
     $plans = [
@@ -324,7 +316,7 @@ function seed_demo(): void
             continue;
         }
         $userId = User::create([
-            'name' => $name, 'email' => $email, 'role' => 'member',
+            'name' => $name, 'email' => $email,
             'password_hash' => password_hash('miembro123', PASSWORD_DEFAULT),
             'address' => 'Calle y número', 'city' => 'Mar del Plata', 'postal_code' => '7600',
             'created_at' => date('Y-m-d H:i:s', strtotime("{$daysAgo} days")),
@@ -333,4 +325,10 @@ function seed_demo(): void
         MembershipService::assignManual($userId, (int) $plan['id'], date('Y-m-d', strtotime("{$daysAgo} days")), true, $gateway, 'Dato de prueba');
     }
     echo "  Miembros de prueba: contraseña \"miembro123\" (por ejemplo juana-perez@ejemplo.com)\n";
+
+    // Administración de prueba (solo desarrollo)
+    if (!\App\Models\Admin::findByEmail('admin@ejemplo.com')) {
+        \App\Models\Admin::register('Silvina (prueba)', 'admin@ejemplo.com', 'admin-de-prueba');
+        echo "  Admin de prueba: admin@ejemplo.com / admin-de-prueba (en /admin/ingresar)\n";
+    }
 }

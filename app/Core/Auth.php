@@ -31,11 +31,6 @@ final class Auth
         return self::user() !== null;
     }
 
-    public static function isAdmin(): bool
-    {
-        return (self::user()['role'] ?? null) === 'admin';
-    }
-
     public static function attempt(string $email, string $password): bool
     {
         $user = User::findByEmail($email);
@@ -61,7 +56,6 @@ final class Auth
     public static function logout(): void
     {
         Session::forget('user_id');
-        Session::forget('_csrf');
         Session::regenerate();
         self::$user = null;
     }

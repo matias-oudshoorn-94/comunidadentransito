@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controllers\Admin;
 
-use App\Core\Auth;
 use App\Models\Membership;
 use App\Models\Payment;
 use App\Models\Plan;
@@ -46,19 +45,14 @@ final class UserController extends AdminController
         $data = $this->validate([
             'name'     => 'required|max:120',
             'email'    => 'required|email|max:190|unique:users,email,' . $user['id'],
-            'role'     => 'required|in:member,admin',
             'phone'    => 'nullable|max:40',
             'country'  => 'nullable|max:60',
             'notes'    => 'nullable|max:5000',
             'password' => 'nullable|min:8|max:200',
         ]);
-        if ((int) $user['id'] === Auth::id() && $data['role'] !== 'admin') {
-            $this->back('No podés quitarte el rol de administración a vos.');
-        }
         $update = [
             'name'    => $data['name'],
             'email'   => strtolower($data['email']),
-            'role'    => $data['role'],
             'phone'   => $data['phone'] ?? null,
             'country' => $data['country'] ?? null,
             'notes'   => $data['notes'] ?? null,

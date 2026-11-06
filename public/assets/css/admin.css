@@ -184,3 +184,22 @@ a.stat:hover { border-color: var(--celeste-agua); color: var(--petroleo); }
 .upload__label-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 .admin .input, .admin .select { min-height: 46px; padding: 10px 16px; }
 .admin .textarea { border-radius: 14px; }
+
+/* Ingreso a la administración */
+body.admin-auth { min-height: 100vh; background: var(--petroleo); display: grid; }
+.admin-login { display: grid; place-items: center; padding: 40px 20px; }
+.admin-login__card { width: min(440px, 100%); padding: 36px 36px 28px; background: var(--crema); border-radius: var(--radius-l); box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .35); }
+.admin-login__brand { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+.admin-login__brand strong { display: block; font: 600 1.05rem/1.2 var(--font-title); }
+.admin-login__brand span { font: 500 .66rem/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--turquesa); }
+.admin-login h1 { font-size: 1.7rem; margin-bottom: 8px; }
+.admin-login p { font-size: .93rem; margin-bottom: 22px; }
+.admin-login__back { display: inline-block; margin-top: 20px; font-size: .9rem; }
+
+/* Administradores */
+.admin-row { border-bottom: 1px solid var(--linea); }
+.admin-row summary { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; padding: 14px 4px; cursor: pointer; list-style: none; }
+.admin-row summary::-webkit-details-marker { display: none; }
+.admin-row__who .sub { display: block; }
+.admin-row__form { padding: 0 4px 16px; }
+@media (max-width: 700px) { .admin-row summary { grid-template-columns: 1fr auto; } .admin-row summary > .sub { display: none; } }

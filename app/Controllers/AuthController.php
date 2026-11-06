@@ -43,8 +43,7 @@ final class AuthController extends Controller
 
         $intended = Session::get('intended');
         Session::forget('intended');
-        $fallback = Auth::isAdmin() ? '/admin' : '/mi-comunidad';
-        $this->redirect(is_string($intended) && str_starts_with($intended, '/') ? $intended : $fallback);
+        $this->redirect(is_string($intended) && str_starts_with($intended, '/') && !str_starts_with($intended, '/admin') ? $intended : '/mi-comunidad');
     }
 
     public function registerForm(): void

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Core\AdminAuth;
 use App\Core\Database;
 
 /**
@@ -18,11 +19,11 @@ final class AccessService
     /** Niveles vigentes de la persona. Administración ve todo. */
     public static function tiersFor(?array $user): array
     {
+        if (AdminAuth::check()) {
+            return array_keys(config('site.tiers'));
+        }
         if ($user === null) {
             return [];
-        }
-        if ($user['role'] === 'admin') {
-            return array_keys(config('site.tiers'));
         }
         $id = (int) $user['id'];
         return self::$tierCache[$id] ??= Database::column(

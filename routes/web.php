@@ -60,7 +60,11 @@ $router->group(['middleware' => ['auth']], function (Router $r) {
 $router->post('/webhooks/mercadopago', [WebhookController::class, 'mercadopago'], ['nocsrf']);
 $router->post('/webhooks/paypal', [WebhookController::class, 'paypal'], ['nocsrf']);
 
-// Administración
+// Administración: ingreso propio, separado del de la Comunidad
+$router->get('/admin/ingresar', [Admin\LoginController::class, 'form'], ['admin_guest']);
+$router->post('/admin/ingresar', [Admin\LoginController::class, 'login'], ['admin_guest']);
+$router->post('/admin/salir', [Admin\LoginController::class, 'logout'], ['admin']);
+
 $router->group(['prefix' => '/admin', 'middleware' => ['admin']], function (Router $r) {
     $r->get('', [Admin\DashboardController::class, 'index']);
 
@@ -90,6 +94,11 @@ $router->group(['prefix' => '/admin', 'middleware' => ['admin']], function (Rout
     $r->post('/contenidos/{id}', [Admin\EntryController::class, 'update']);
     $r->post('/contenidos/{id}/borrar', [Admin\EntryController::class, 'destroy']);
     $r->post('/subir-imagen', [Admin\EntryController::class, 'uploadInline']);
+
+    $r->get('/administradores', [Admin\AdminUserController::class, 'index']);
+    $r->post('/administradores', [Admin\AdminUserController::class, 'store']);
+    $r->post('/administradores/{id}', [Admin\AdminUserController::class, 'update']);
+    $r->post('/administradores/{id}/quitar', [Admin\AdminUserController::class, 'destroy']);
 
     $r->get('/mensajes', [Admin\MessageController::class, 'index']);
     $r->post('/mensajes/{id}/leido', [Admin\MessageController::class, 'markRead']);

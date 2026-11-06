@@ -114,9 +114,10 @@ function auth(): ?array
     return Auth::user();
 }
 
+/** ¿Hay una sesión de administración abierta? */
 function is_admin(): bool
 {
-    return Auth::isAdmin();
+    return \App\Core\AdminAuth::check();
 }
 
 function current_path(): string

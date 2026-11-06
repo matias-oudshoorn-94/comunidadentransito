@@ -42,9 +42,8 @@ final class User extends Model
         $current = "(SELECT m.id FROM memberships m WHERE m.user_id = u.id AND m.status <> 'pending' ORDER BY m.ends_at DESC LIMIT 1)";
         $where[] = match ($status) {
             'activos'       => "EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = u.id AND m.status = 'active' AND m.ends_at >= ?)",
-            'vencidos'      => "u.role = 'member' AND NOT EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = u.id AND m.status = 'active' AND m.ends_at >= ?) AND EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = u.id AND m.status <> 'pending')",
-            'sin-membresia' => "u.role = 'member' AND NOT EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = u.id AND m.status <> 'pending')",
-            'admin'         => "u.role = 'admin'",
+            'vencidos'      => "NOT EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = u.id AND m.status = 'active' AND m.ends_at >= ?) AND EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = u.id AND m.status <> 'pending')",
+            'sin-membresia' => "NOT EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = u.id AND m.status <> 'pending')",
             default         => '1 = 1',
         };
         if (in_array($status, ['activos', 'vencidos'], true)) {

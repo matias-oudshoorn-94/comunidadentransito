@@ -86,12 +86,6 @@
                 <div class="field"><label for="phone">Teléfono</label><input class="input" id="phone" name="phone" value="<?= e($user['phone']) ?>"></div>
                 <div class="field"><label for="country">País</label><input class="input" id="country" name="country" value="<?= e($user['country']) ?>"></div>
             </div>
-            <div class="field"><label for="role">Rol</label>
-                <select class="select" id="role" name="role">
-                    <option value="member" <?= $user['role'] === 'member' ? 'selected' : '' ?>>Miembro</option>
-                    <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Administración</option>
-                </select>
-            </div>
             <div class="field"><label for="notes">Notas internas</label><textarea class="textarea" id="notes" name="notes" style="min-height:90px"><?= e($user['notes']) ?></textarea></div>
             <div class="field <?= error('password') ? 'has-error' : '' ?>"><label for="password">Nueva contraseña</label><input class="input" id="password" name="password" type="password" autocomplete="new-password" placeholder="Dejar vacío para no cambiarla"><?= partial('partials/field-error', ['name' => 'password']) ?></div>
             <button class="btn" type="submit">Guardar</button>

@@ -33,7 +33,7 @@ final class DashboardController extends AdminController
             'orilla'    => Membership::activeCount('orilla'),
             'inmersion' => Membership::activeCount('inmersion'),
             'revenue'   => Payment::totals($monthStart, $monthEnd),
-            'newUsers'  => User::count("role = 'member' AND created_at >= ?", [$monthStart]),
+            'newUsers'  => User::count('created_at >= ?', [$monthStart]),
             'pending'   => Payment::count("status = 'pending'"),
             'unread'    => ContactMessage::unreadCount(),
             'expiring'  => Membership::expiringSoon(30, 8),

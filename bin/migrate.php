@@ -31,7 +31,7 @@ if ($driver === 'sqlite') {
 }
 
 $pdo = Database::pdo();
-$tables = ['subscribers', 'contact_messages', 'books', 'rune_draws', 'runes', 'entries', 'section_tiers', 'sections', 'payments', 'memberships', 'plans', 'users'];
+$tables = ['admins', 'subscribers', 'contact_messages', 'books', 'rune_draws', 'runes', 'entries', 'section_tiers', 'sections', 'payments', 'memberships', 'plans', 'users'];
 
 if ($fresh) {
     if (config('app.env') === 'production') {

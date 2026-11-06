@@ -2,7 +2,7 @@
 
 use App\Models\ContactMessage;
 
-$user = auth();
+$user = \App\Core\AdminAuth::user();
 $unread = ContactMessage::unreadCount();
 $nav = [
     ['/admin', 'Resumen', 'home'],
@@ -14,6 +14,7 @@ $nav = [
     ['/admin/secciones', 'Secciones y acceso', 'folder'],
     ['/admin/planes', 'Planes', 'tag'],
     ['/admin/mensajes', 'Mensajes', 'mail'],
+    ['/admin/administradores', 'Administradores', 'lock'],
 ];
 ?>
 <!doctype html>
@@ -51,7 +52,7 @@ $nav = [
         </nav>
         <div class="admin-side__foot">
             <a href="/" target="_blank" rel="noopener"><?= icon('external') ?> Ver el sitio</a>
-            <form method="post" action="/salir"><?= csrf_field() ?><button type="submit"><?= icon('logout') ?> Salir</button></form>
+            <form method="post" action="/admin/salir"><?= csrf_field() ?><button type="submit"><?= icon('logout') ?> Salir</button></form>
         </div>
     </aside>
 

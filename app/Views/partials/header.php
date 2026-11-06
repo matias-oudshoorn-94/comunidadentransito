@@ -62,7 +62,6 @@ $links = $member
                         <div class="user-menu__panel" id="user-menu" data-dropdown-panel>
                             <a href="/mi-comunidad">Mi Comunidad</a>
                             <a href="/mi-cuenta">Mi cuenta</a>
-                            <?php if ($user['role'] === 'admin'): ?><a href="/admin">Administración</a><?php endif; ?>
                             <?php if (!$member): ?><a href="/membresias">Membresías</a><?php endif; ?>
                             <form method="post" action="/salir"><?= csrf_field() ?><button type="submit">Cerrar sesión</button></form>
                         </div>

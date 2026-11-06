@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Core;
 
 /**
- * auth   · hay que haber ingresado
- * admin  · solo administración
- * guest  · solo sin sesión (ingresar, registro)
+ * auth        · hay que haber ingresado al sitio
+ * guest       · solo sin sesión del sitio (ingresar, registro)
+ * admin       · hay que haber ingresado a la administración (/admin/ingresar)
+ * admin_guest · solo sin sesión de administración
  * csrf   · se aplica solo a todo POST salvo rutas con "nocsrf" (webhooks)
  */
 final class Middleware
@@ -22,17 +23,26 @@ final class Middleware
                 break;
 
             case 'admin':
-                if (!Auth::check()) {
-                    self::toLogin($request);
+                if (!AdminAuth::check()) {
+                    if ($request->wantsJson()) {
+                        throw new HttpException(401);
+                    }
+                    if ($request->method === 'GET') {
+                        Session::put('admin_intended', $request->path);
+                    }
+                    redirect('/admin/ingresar');
                 }
-                if (!Auth::isAdmin()) {
-                    throw new HttpException(403);
+                break;
+
+            case 'admin_guest':
+                if (AdminAuth::check()) {
+                    redirect('/admin');
                 }
                 break;
 
             case 'guest':
                 if (Auth::check()) {
-                    redirect(Auth::isAdmin() ? '/admin' : '/mi-comunidad');
+                    redirect('/mi-comunidad');
                 }
                 break;
 

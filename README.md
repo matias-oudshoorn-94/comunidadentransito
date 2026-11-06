@@ -12,8 +12,8 @@ php bin/migrate.php --fresh --demo  # tablas + datos base + miembros de prueba
 composer serve                    # http://localhost:8000
 ```
 
-- Admin: `admin@comunidadentransito.local` / `cambiar-esta-clave` (se cambia en `.env` antes del seed).
-- Miembros de prueba: por ejemplo `lucia-fernandez@ejemplo.com` / `miembro123`.
+- Administración (con `--demo`): `admin@ejemplo.com` / `admin-de-prueba` en **/admin/ingresar**.
+- Miembros de prueba: por ejemplo `juana-perez@ejemplo.com` / `miembro123` en /ingresar.
 - En desarrollo se usa SQLite (`storage/database.sqlite`). Para MySQL: `DB_DRIVER=mysql` y los datos de conexión en `.env`, después `php bin/migrate.php --seed`.
 - Sin credenciales de pago y con `APP_ENV=local`, la compra muestra un **pago simulado** (aprobar/rechazar) para probar todo el circuito.
 - Los emails se guardan en `storage/logs/mail.log` mientras `MAIL_DRIVER=log`.
@@ -49,6 +49,13 @@ database/        schema.sql (SQLite y MySQL) y seed.php
 bin/             migrate.php, expire.php (cron diario)
 public/          index.php (único punto de entrada) y assets
 ```
+
+## Administración
+
+- El panel tiene su **propio ingreso** en `/admin/ingresar` y su propia sesión: entrar o salir del sitio no afecta al panel, y al revés.
+- Las cuentas de administración están en la tabla `admins` (no en `users` ni en el `.env`). Se agregan, editan y quitan desde **Administradores** en el panel; siempre queda al menos una.
+- Primera cuenta: mientras no haya ninguna, `/admin/ingresar` ofrece crearla. También por consola: `php bin/create-admin.php` (sirve además para resetear una contraseña olvidada).
+- Con sesión de administración se ve todo el contenido del sitio, para revisarlo como miembro.
 
 ## Cómo funciona el acceso
 

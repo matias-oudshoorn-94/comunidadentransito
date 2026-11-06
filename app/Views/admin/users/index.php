@@ -1,6 +1,6 @@
 <?php
 /** @var array $result @var string $q @var string $status */
-$tabs = ['' => 'Todas las personas', 'activos' => 'Con membresía activa', 'vencidos' => 'Vencidas', 'sin-membresia' => 'Sin membresía', 'admin' => 'Administración'];
+$tabs = ['' => 'Todas las personas', 'activos' => 'Con membresía activa', 'vencidos' => 'Vencidas', 'sin-membresia' => 'Sin membresía'];
 $qs = fn (array $extra) => '?' . http_build_query(array_filter(['q' => $q, 'estado' => $status] + $extra) + $extra);
 ?>
 <section class="box">
@@ -27,7 +27,6 @@ $qs = fn (array $extra) => '?' . http_build_query(array_filter(['q' => $q, 'esta
                     <tr>
                         <td>
                             <a href="/admin/usuarios/<?= (int) $u['id'] ?>"><?= e($u['name']) ?></a>
-                            <?php if ($u['role'] === 'admin'): ?> <span class="badge badge--admin badge--plain">Admin</span><?php endif; ?>
                             <span class="sub"><?= e($u['email']) ?></span>
                         </td>
                         <td><?= e($u['plan_name'] ?? '—') ?></td>
