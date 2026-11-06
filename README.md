@@ -80,7 +80,7 @@ Programar una vez por día: `php bin/expire.php` (marca como vencidas las membre
 
 - Las capturas de Figma están en `design/figma/` (no se suben a git). Las fotos del sitio salieron de ahí, en baja calidad: reemplazalas por los originales con el mismo nombre en `public/assets/img/fotos/` y `public/assets/img/libros/`.
 - Textos y fotos de cada sección de Contenidos: `config/sections.php`. Textos generales, testimonios, preguntas y redes: `config/site.php`.
-- Formato del texto de una entrega (admin → Contenidos): párrafos separados por una línea en blanco; `![epígrafe](fotos/archivo.jpg)` para imágenes (dos seguidas van lado a lado); `> cita` con `— Autora` abajo; `[para probar en casa]` y el texto abajo para el recuadro celeste; `@galeria título | fotos/a.jpg fotos/b.jpg` para la tira de fotos al pie.
+- Texto de las entregas: el admin tiene un **editor por bloques** (párrafo con negrita, cursiva y links; imagen; dos imágenes; cita; recuadro “para probar en casa”). Por dentro se guarda en un formato de texto simple que interpreta `rich_text()` en `app/helpers.php`; el botón “Editar como texto” lo muestra tal cual.
 
 ## Archivos que sube el admin
 

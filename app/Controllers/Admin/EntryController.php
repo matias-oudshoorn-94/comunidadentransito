@@ -90,7 +90,7 @@ final class EntryController extends AdminController
         } catch (RuntimeException $e) {
             $this->json(['error' => $e->getMessage()], 422);
         }
-        $this->json(['url' => '/' . $path, 'markdown' => '![](' . $path . ')']);
+        $this->json(['url' => '/' . $path, 'path' => $path, 'markdown' => '![](' . $path . ')']);
     }
 
     /**
@@ -182,7 +182,7 @@ final class EntryController extends AdminController
             'image'        => $image,
             'image_caption'=> $data['image_caption'] ?? null,
             'gallery_title'=> $data['gallery_title'] ?? null,
-            'body'         => $data['body'] ?? null,
+            'body'         => isset($data['body']) ? str_replace(["\r\n", "\r"], "\n", $data['body']) : null,
             'media_url'    => $media,
             'event_at'     => !empty($data['event_at']) ? date('Y-m-d H:i:s', strtotime($data['event_at'])) : null,
             'published_at' => date('Y-m-d H:i:s', strtotime($data['published_at'])),

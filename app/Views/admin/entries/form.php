@@ -83,11 +83,15 @@ $limit = \App\Services\Uploader::serverLimit();
             </div>
         </fieldset>
         <div class="field"><label for="excerpt">Adelanto</label><input class="input" id="excerpt" name="excerpt" maxlength="400" value="<?= e(old('excerpt', $entry['excerpt'] ?? '')) ?>"><span class="hint">Se muestra en la tarjeta.</span></div>
-        <div class="field"><div class="upload__label-row"><label for="body">Texto</label>
-            <label class="btn btn--ghost btn--xs upload__button" title="Sube una imagen y la agrega donde está el cursor"><?= icon('plus') ?> Insertar imagen en el texto
-                <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-inline-upload="body" data-url="/admin/subir-imagen">
-            </label></div>
-            <textarea class="textarea" id="body" name="body" style="min-height:320px"><?= e(old('body', $entry['body'] ?? '')) ?></textarea><span class="hint">Dejá una línea en blanco entre párrafos. Para sumar fotos usá “Insertar imagen en el texto” (el epígrafe va entre los corchetes; dos imágenes seguidas se ven lado a lado). Cita: <code>&gt; texto</code> y abajo <code>— Autora</code>. Recuadro: <code>[para probar en casa]</code> y el texto abajo.</span></div>
+        <div class="field editor" data-editor="body" data-upload-url="/admin/subir-imagen">
+            <div class="upload__label-row">
+                <span class="label" id="body-label">Texto de la entrega</span>
+                <button class="btn--link small" type="button" data-editor-mode>Editar como texto</button>
+            </div>
+            <div class="editor__blocks" data-editor-blocks aria-labelledby="body-label"></div>
+            <textarea class="textarea editor__source" id="body" name="body" style="min-height:320px" aria-labelledby="body-label"><?= e(old('body', $entry['body'] ?? '')) ?></textarea>
+            <span class="hint editor__hint">Usá “+” para sumar párrafos, imágenes, citas o el recuadro “para probar en casa”, y las flechas para cambiar el orden. En los párrafos: Enter arma un párrafo nuevo y Shift+Enter hace un salto de línea.</span>
+        </div>
         <fieldset class="upload" data-media>
             <legend>Video, audio o PDF</legend>
             <div class="upload__tabs" role="radiogroup" aria-label="Origen">

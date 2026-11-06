@@ -340,9 +340,31 @@ function minutos_de_lectura(?string $text): int
  *   @galeria título | fotos/a.jpg fotos/b.jpg   tira de fotos al final de la página (ver rich_gallery)
  * Devuelve [html, galería|null].
  */
+/**
+ * Formato dentro de un párrafo, cita o recuadro: **negrita**, *cursiva* y [texto](https://link).
+ * Se escapa todo primero; los links solo pueden ser https://, http://, mailto: o internos (/…).
+ */
+function inline_format(string $text): string
+{
+    $html = e($text);
+    $html = preg_replace_callback(
+        '/\[([^\]\n]+)\]\(((?:https?:\/\/|mailto:|\/)[^\s)]+)\)/u',
+        static function (array $m): string {
+            $external = !str_starts_with($m[2], '/');
+            return '<a href="' . $m[2] . '"' . ($external ? ' target="_blank" rel="noopener"' : '') . '>' . $m[1] . '</a>';
+        },
+        $html,
+    ) ?? $html;
+    $html = preg_replace('/\*\*(?=\S)(.+?)(?<=\S)\*\*/su', '<strong>$1</strong>', $html) ?? $html;
+    $html = preg_replace('/(?<![*\w])\*(?=\S)([^*\n]+?)(?<=\S)\*(?![*\w])/u', '<em>$1</em>', $html) ?? $html;
+    return nl2br($html);
+}
+
 function rich_text(?string $text, ?int $limit = null): array
 {
-    $blocks = preg_split('/\R{2,}/u', trim((string) $text)) ?: [];
+    // Los navegadores mandan los saltos de línea como \r\n: se normalizan para que las reglas de abajo funcionen
+    $text = str_replace(["\r\n", "\r"], "\n", (string) $text);
+    $blocks = preg_split('/\n\s*\n/u', trim($text)) ?: [];
     $html = '';
     $gallery = null;
     $count = 0;
@@ -351,7 +373,12 @@ function rich_text(?string $text, ?int $limit = null): array
         if ($block === '') {
             continue;
         }
-        if (str_starts_with($block, '@galeria')) {
+        // "\" al comienzo: es un párrafo común aunque empiece con ">" o "[" (lo agrega el editor)
+        $plain = str_starts_with($block, '\\');
+        if ($plain) {
+            $block = substr($block, 1);
+        }
+        if (!$plain && str_starts_with($block, '@galeria')) {
             [$title, $files] = array_pad(explode('|', substr($block, 8), 2), 2, '');
             $gallery = ['title' => trim($title), 'images' => preg_split('/\s+/', trim($files), -1, PREG_SPLIT_NO_EMPTY)];
             continue;
@@ -359,25 +386,25 @@ function rich_text(?string $text, ?int $limit = null): array
         if ($limit !== null && $count >= $limit) {
             break;
         }
-        if (preg_match_all('/^!\[([^\]]*)\]\(([^)\s]+)\)$/mu', $block, $m, PREG_SET_ORDER) && count($m) === count(preg_split('/\R/u', $block))) {
+        if (!$plain && preg_match_all('/^!\[([^\]]*)\]\(([^)\s]+)\)$/mu', $block, $m, PREG_SET_ORDER) && count($m) === count(preg_split('/\R/u', $block))) {
             $figs = array_map(fn ($f) => '<figure>' . img($f[2], $f[1]) . ($f[1] !== '' ? '<figcaption>' . e($f[1]) . '</figcaption>' : '') . '</figure>', $m);
             $html .= count($figs) > 1 ? '<div class="figs">' . implode('', $figs) . '</div>' : $figs[0];
             continue;
         }
-        if (str_starts_with($block, '>')) {
+        if (!$plain && str_starts_with($block, '>')) {
             $lines = preg_split('/\R/u', $block);
             $quote = trim(ltrim(array_shift($lines), '> '));
             $author = trim(ltrim(implode(' ', $lines), '—- '));
-            $html .= '<blockquote><p>“' . e(trim($quote, '"“”')) . '”</p>' . ($author !== '' ? '<cite>' . e($author) . '</cite>' : '') . '</blockquote>';
+            $html .= '<blockquote><p>“' . inline_format(trim($quote, '"“”')) . '”</p>' . ($author !== '' ? '<cite>' . e($author) . '</cite>' : '') . '</blockquote>';
             continue;
         }
-        if (preg_match('/^\[([^\]]+)\]\R(.+)$/su', $block, $m)) {
-            $html .= '<div class="try"><span class="hand">' . e($m[1]) . '</span><p>' . nl2br(e(trim($m[2]))) . '</p></div>';
+        if (!$plain && preg_match('/^\[([^\]]+)\]\R(.+)$/su', $block, $m)) {
+            $html .= '<div class="try"><span class="hand">' . e($m[1]) . '</span><p>' . inline_format(trim($m[2])) . '</p></div>';
             continue;
         }
         $count++;
         $class = ($limit !== null && $count === $limit) ? ' class="fade-out"' : '';
-        $html .= '<p' . $class . '>' . nl2br(e($block)) . '</p>';
+        $html .= '<p' . $class . '>' . inline_format($block) . '</p>';
     }
     return [$html, $gallery];
 }

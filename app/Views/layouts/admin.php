@@ -28,12 +28,13 @@ $nav = [
     <title><?= e(($title ?? 'Admin') . ' · Admin · ' . config('app.name')) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@500&family=Nunito+Sans:opsz,wght@6..12,400;6..12,700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@500&family=Nunito+Sans:opsz,wght@6..12,400;6..12,700&display=swap">
     <link rel="stylesheet" href="<?= asset('css/base.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/components.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/admin.css') ?>">
     <script src="<?= asset('js/app.js') ?>" defer></script>
     <script src="<?= asset('js/admin.js') ?>" defer></script>
+    <script src="<?= asset('js/editor.js') ?>" defer></script>
 </head>
 <body class="admin">
     <a class="skip-link" href="#main">Saltar al contenido</a>

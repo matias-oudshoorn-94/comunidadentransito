@@ -449,3 +449,6 @@
 .entry__wide-slider { max-width: 1000px; margin: 0 auto; }
 @media (max-width: 760px) { .slider__arrow { width: 38px; height: 38px; } .slider__arrow--prev { left: 8px; } .slider__arrow--next { right: 8px; } }
 @media (prefers-reduced-motion: reduce) { .slider__track { scroll-behavior: auto; } }
+
+.entry-body a { color: var(--turquesa); text-decoration: underline; text-underline-offset: 3px; }
+.entry-body strong { font-weight: 700; }
