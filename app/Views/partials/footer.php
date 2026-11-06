@@ -3,7 +3,7 @@
     <div class="container">
         <div class="site-footer__grid">
             <div class="site-footer__brand">
-                <h2>Comunidad en Tránsito</h2>
+                <h2 class="site-footer__logo"><a href="/"><img src="<?= asset('img/logo-sintetico-blanco.webp') ?>" alt="Comunidad en Tránsito" width="400" height="144" loading="lazy"></a></h2>
                 <p><?= e(config('site.tagline')) ?></p>
             </div>
             <div>
@@ -21,7 +21,7 @@
         </div>
 
         <div class="site-footer__mobile">
-            <h2>Comunidad en Tránsito</h2>
+            <h2 class="site-footer__logo"><a href="/"><img src="<?= asset('img/logo-sintetico-blanco.webp') ?>" alt="Comunidad en Tránsito" width="400" height="144" loading="lazy"></a></h2>
             <p><?= e(config('site.tagline')) ?></p>
             <p><a href="/la-comunidad">La Comunidad</a> · <a href="/contenidos">Contenidos</a> · <a href="/libros">Libros</a> · <a href="/sobre-silvina">Sobre Silvina</a> · <a href="/contacto">Contacto</a></p>
             <p class="site-footer__social"><a href="<?= e(whatsapp()) ?>" target="_blank" rel="noopener">WhatsApp</a> · <a href="<?= e($s['instagram']) ?>" target="_blank" rel="noopener">Instagram</a> · <a href="<?= e($s['facebook']) ?>" target="_blank" rel="noopener">Facebook</a></p>
