@@ -61,6 +61,8 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
+/* Los adornos (halos, acuarelas) no pueden ensanchar la página en el celular */
+main { overflow-x: clip; }
 
 img, svg, video { display: block; max-width: 100%; }
 img { height: auto; }

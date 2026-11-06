@@ -45,6 +45,7 @@ return [
         'cta' => ['para leer sin apuro', 'Sumate para acceder a la biblioteca', 'Quiero sumarme', 'sand'],
     ],
     'capituleando' => [
+        'menu' => 'Un capítulo de regalo por mes', // descripción en el menú de Contenidos
         'hand' => 'un capítulo de regalo por mes', 'image' => 'fotos/libros-playa.jpg',
         'card' => 'Un capítulo de sus libros, cada mes.', 'chip' => 'Leer', 'card_image' => 'fotos/libros-playa.jpg',
         'chips' => [['doc', 'PDF', 'para leer o imprimir'], ['palette', 'Se renueva', 'cada mes']],
@@ -86,6 +87,7 @@ return [
         'cta' => ['para leer sin apuro', 'Sumate para recibir la carta de cada mes', 'Quiero sumarme', 'sand'],
     ],
     'lugares' => [
+        'menu' => 'Un lugar por mes', // descripción en el menú de Contenidos
         'hand' => 'relatos de viajes desde la emoción', 'image' => 'fotos/flores-lilas.jpg',
         'card' => 'Un lugar por mes, contado desde la emoción.', 'chip' => 'Encuentros', 'card_image' => 'fotos/mainumbi-1.jpg',
         'block' => ['PARA MIEMBROS', 'Entrega del mes', 'Cada mes, un lugar contado por Silvina, con sus fotos.'],
