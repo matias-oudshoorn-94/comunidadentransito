@@ -280,3 +280,23 @@ body.admin-auth { min-height: 100vh; background: var(--petroleo); display: grid;
 /* La barra de formato del párrafo va en la línea del título del bloque (no ocupa espacio extra) */
 .ed-block--p .ed-toolbar { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); margin: 0; }
 .ed-block--p .ed-block__bar { min-height: 28px; }
+
+/* ---------- Filtros del listado de contenidos ---------- */
+.efilter__search { position: relative; flex: 1 1 280px; max-width: 420px; }
+.efilter__search .icon { position: absolute; left: 14px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); color: var(--petroleo-suave); pointer-events: none; }
+.efilter__search .input { width: 100%; padding: 10px 14px 10px 42px; }
+.efilter { display: grid; gap: 8px; padding: 14px 0; border-top: 1px solid var(--linea); }
+.efilter__row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.efilter__label { min-width: 150px; margin-right: 4px; font: 500 .68rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--turquesa); }
+.chipf { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border: 1px solid var(--linea); border-radius: 999px; background: var(--blanco); color: var(--petroleo); font-size: .88rem; font-weight: 600; text-decoration: none; transition: background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease); }
+.chipf span { min-width: 20px; padding: 1px 6px; border-radius: 999px; background: var(--cielo); font-size: .74rem; text-align: center; color: var(--petroleo-suave); }
+.chipf:hover { border-color: var(--turquesa); color: var(--petroleo); }
+.chipf.is-on { background: var(--turquesa); border-color: var(--turquesa); color: var(--blanco); }
+.chipf.is-on span { background: rgba(255, 255, 255, .22); color: var(--blanco); }
+.chipf.is-empty { opacity: .55; }
+.efilter__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0 14px; border-top: 1px solid var(--linea); }
+.seg { display: inline-flex; flex-wrap: wrap; padding: 3px; border-radius: 999px; background: var(--cielo); }
+.seg a { padding: 6px 14px; border-radius: 999px; color: var(--petroleo); font-size: .86rem; font-weight: 600; text-decoration: none; }
+.seg a:hover { color: var(--turquesa); }
+.seg a.is-on { background: var(--blanco); color: var(--turquesa); box-shadow: 0 1px 3px rgba(30, 61, 68, .12); }
+@media (max-width: 700px) { .efilter__label { min-width: 100%; } }

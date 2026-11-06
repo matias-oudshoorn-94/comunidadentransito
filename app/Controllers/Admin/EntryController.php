@@ -14,14 +14,31 @@ use RuntimeException;
 
 final class EntryController extends AdminController
 {
+    /** Filtro del listado: se guarda en la sesión para volver a él desde una entrega. */
+    private const FILTER_KEY = 'admin.entries.filter';
+
     public function index(): void
     {
+        // Sin parámetros (menú lateral, "Volver a contenidos", después de borrar): el último filtro usado
+        $saved = (string) Session::get(self::FILTER_KEY, '');
+        if ($_GET === [] && $saved !== '') {
+            $this->redirect('/admin/contenidos?' . $saved);
+        }
+
         $sectionId = (int) $this->request->query('seccion', 0);
+        $status = (string) $this->request->query('estado', '');
+        $status = array_key_exists($status, Entry::ADMIN_STATUSES) ? $status : '';
+        $search = trim((string) $this->request->query('q', ''));
+        Session::put(self::FILTER_KEY, http_build_query(array_filter(['seccion' => $sectionId, 'estado' => $status, 'q' => $search])));
+
         $this->view('admin/entries/index', [
             'title'     => 'Contenidos',
-            'entries'   => Entry::adminList($sectionId),
+            'entries'   => Entry::adminList($sectionId, $status, $search),
             'sections'  => Section::all('sort ASC'),
+            'counts'    => Entry::adminCounts($status, $search),
             'sectionId' => $sectionId,
+            'status'    => $status,
+            'search'    => $search,
         ]);
     }
 

@@ -142,4 +142,16 @@
       $('[data-gallery-count]', box).textContent = input.files.length + word + ' · ' + mb(total) + '. Se suben al guardar.';
     });
   });
+
+  // Buscador del listado de contenidos: busca solo al dejar de escribir
+  $$('[data-entry-search]').forEach((form) => {
+    const input = $('input[name="q"]', form);
+    const last = input.value.trim();
+    let timer = null;
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { if (input.value.trim() !== last) form.submit(); }, 450);
+    });
+    if (input.hasAttribute('autofocus')) input.setSelectionRange(input.value.length, input.value.length);
+  });
 })();
