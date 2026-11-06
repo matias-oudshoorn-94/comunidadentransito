@@ -102,6 +102,7 @@ $links = $member
         <?php endif; ?>
     </div>
 </header>
+<div class="header-space" aria-hidden="true"></div>
 
 <?php if ($mode !== 'checkout'): ?>
 <div class="mobile-menu" id="mobile-menu" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menú">

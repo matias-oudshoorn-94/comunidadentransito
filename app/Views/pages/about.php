@@ -52,7 +52,7 @@ $timeline = [
             <span class="kicker">Terapia ocupacional</span>
             <h2>¿Qué es la terapia ocupacional?</h2>
             <p class="muted">Un video corto de Silvina para contar, con sus palabras, cómo lo que hacemos nos ayuda a sentirnos mejor.</p>
-            <span class="hand" style="font-size:1.25rem">3 minutos, con un cafecito</span>
+            <span class="hand" style="font-size:1.25rem">9 minutos, con un cafecito</span>
         </div>
     </div>
 </section>

@@ -29,9 +29,11 @@
 @media (max-width: 640px) { .grid--2, .grid--3, .grid--4 { grid-template-columns: 1fr; } }
 
 /* ---------- Encabezado ---------- */
-/* Fijo arriba; al bajar se achica para no tapar el contenido */
+/* Fijo arriba; al bajar se achica para no tapar el contenido.
+   Es "fixed" con un espacio de alto constante debajo: si fuera "sticky", al achicarse movería la página
+   y cerca del borde de arriba quedaría agrandándose y achicándose sin parar. */
 .site-header {
-  position: sticky; top: 0; z-index: 50;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
   height: var(--header-h);
   background: rgba(251, 248, 241, .94);
   -webkit-backdrop-filter: saturate(1.2) blur(10px);
@@ -39,6 +41,7 @@
   border-bottom: 1px solid transparent;
   transition: height var(--t) var(--ease), border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
 }
+.header-space { height: var(--header-h); }
 .site-header.is-scrolled { height: var(--header-h-scrolled); border-bottom-color: var(--linea); box-shadow: 0 8px 24px -20px rgba(30, 61, 68, .45); }
 .site-header .brand__logo { transition: height var(--t) var(--ease); }
 .site-header.is-scrolled .brand__logo { height: 64px; }

@@ -32,7 +32,7 @@ return [
     ],
 
     // Video "¿Qué es la terapia ocupacional?" (YouTube o Vimeo). Vacío: se muestra la foto.
-    'about_video' => '',
+    'about_video' => 'https://www.youtube.com/watch?v=qpajIQQo-x0',
 
     'testimonials' => [
         ['Fuiste inspiración única y en el momento justo.', 'Agustina · terapista ocupacional'],
